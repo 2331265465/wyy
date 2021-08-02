@@ -7,6 +7,7 @@ import {CommonModule} from "@angular/common";
 import {NzInputModule} from "ng-zorro-antd/input";
 import {NzMenuModule} from "ng-zorro-antd/menu";
 import {NzIconModule} from "ng-zorro-antd/icon";
+import {WyUiModule} from "./wy-ui/wy-ui.module";
 
 
 
@@ -21,6 +22,7 @@ import {NzIconModule} from "ng-zorro-antd/icon";
     NzInputModule,
     NzMenuModule,
     NzIconModule,
+    WyUiModule
   ],
   exports:[
     FormsModule,
@@ -31,6 +33,7 @@ import {NzIconModule} from "ng-zorro-antd/icon";
     NzInputModule,
     NzMenuModule,
     NzIconModule,
+    WyUiModule,
   ]
 })
 export class ShareModule { }
