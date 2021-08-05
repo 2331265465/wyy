@@ -15,9 +15,9 @@
         <i class="mask"></i>
       </div>
       <div class="play">
-        <div class="words clearfix" [hidden]="true">
-          <p class="ellipsis">歌名</p>
-          <ul class="songs clearfix">
+        <div class="words clearfix hide">
+          <p class="ellipsis margin-bottom-none">歌名</p>
+          <ul class="songs clearfix margin-bottom-none">
             <li><a>歌手1</a></li>
             <li><a>歌手2</a></li>
             <li><a>歌手3</a></li>
@@ -25,22 +25,26 @@
         </div>
         <div class="bar">
           <div class="slider-wrap">
-            <div>进度条</div>
+            <app-wy-slider [(ngModel)]="sliderValue" [bufferOffset]="bufferOffset"></app-wy-slider>
           </div>
           <span class="time">
             <em>02:11</em> / 04:35
           </span>
         </div>
-        <div class="oper">
-          <i class="like" title="收藏"></i>
-          <i class="share" title="分享"></i>
-        </div>
-        <div class="ctrl">
-          <i class="volume" title="音量"></i>
-          <i class="loop" title="循环"></i>
-          <p class="open">
-            <span></span>
-          </p>
+      </div>
+      <div class="oper">
+        <i class="like" title="收藏"></i>
+        <i class="share" title="分享"></i>
+      </div>
+      <div class="ctrl">
+        <i class="volume" title="音量"></i>
+        <i class="loop" title="循环"></i>
+        <p class="open">
+          <span></span>
+        </p>
+
+        <div class="control-vol">
+          <app-wy-slider [wyVertical]="true"></app-wy-slider>
         </div>
       </div>
     </div>
