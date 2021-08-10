@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild} from '@angular/core';
 import {select, Store} from "@ngrx/store";
 import {AppStoreModule} from "../../../store/store.module";
 import {
@@ -12,6 +12,8 @@ import {
 import {Song} from "../../../services/data-types/common.types";
 import {PlayMode} from "./player-type";
 import {SetCurrentIndex} from "../../../store/actions/player.actions";
+import {fromEvent, Subscription} from "rxjs";
+import {DOCUMENT} from "@angular/common";
 
 @Component({
   selector: 'app-wy-player',
@@ -29,13 +31,17 @@ export class WyPlayerComponent implements OnInit {
 
   duration = 0
   currentTime: number
-
+  volume = 60 //音量百分比
+  showVolumePanel = false //是否显示音量面板
   playing = false //播放状态
   songReady = false //是否可以播放
+  selfClick = false //是否点击的是音量面板本身
+  private winClick: Subscription
+
   @ViewChild('audio', {static: true}) private audio: ElementRef
   private audioEl: HTMLAudioElement
 
-  constructor(private store$: Store<AppStoreModule>) {
+  constructor(private store$: Store<AppStoreModule>,@Inject(DOCUMENT) private doc:Document) {
     const appStore$ = store$.select(selectPlayer)
     const stateArr = [
       {
@@ -66,6 +72,39 @@ export class WyPlayerComponent implements OnInit {
 
   ngOnInit(): void {
     this.audioEl = this.audio.nativeElement
+  }
+
+  toggleVolPanel(e: MouseEvent) {
+    this.togglePanel()
+  }
+
+  togglePanel() {
+    this.showVolumePanel = !this.showVolumePanel
+    if (this.showVolumePanel) {
+      this.bindDocumentClickListener()
+    }else {
+      this.unBindDocumentClickListener()
+    }
+  }
+  private bindDocumentClickListener() {
+    if(!this.winClick) {
+      this.winClick = fromEvent(this.doc,'click').subscribe(() => {
+        if (!this.selfClick) { //说明点击了播放器以外的部分
+          this.showVolumePanel = false
+          this.unBindDocumentClickListener()
+        }
+        this.selfClick = false
+      })
+    }
+  }
+  unBindDocumentClickListener() {
+    if (this.winClick) {
+      this.winClick.unsubscribe()
+      this.winClick = null
+    }
+  }
+  onChangeVolume(per: number) {
+    this.audioEl.volume = per / 100
   }
 
   private watchSongList(list: Song[], type: string) {
@@ -121,47 +160,53 @@ export class WyPlayerComponent implements OnInit {
         this.playing = !this.playing
         if (this.playing) {
           this.audioEl.play()
-        }else {
+        } else {
           this.audioEl.pause()
         }
       }
-    }else {
+    } else {
       if (this.playList.length) {
         this.updateIndex(0)
       }
     }
   }
+
   //上一首
-  onPrev(index:number) {
+  onPrev(index: number) {
     if (!this.songReady) return;
     if (this.playList.length === 1) {
       this.loop()
-    }else {
+    } else {
       const newIndex = index <= 0 ? this.playList.length - 1 : index
       this.updateIndex(newIndex)
     }
   }
+
   //下一首
-  onNext(index:number) {
+  onNext(index: number) {
     if (!this.songReady) return;
     if (this.playList.length === 1) {
       this.loop()
-    }else {
+    } else {
       const newIndex = index >= this.playList.length ? 0 : index
       this.updateIndex(newIndex)
     }
   }
+
   //单曲循环
   loop() {
     this.audioEl.currentTime = 0
     this.play()
   }
-  private updateIndex(index:number) {
-    this.store$.dispatch(SetCurrentIndex({currentIndex:index}))
+
+  private updateIndex(index: number) {
+    this.store$.dispatch(SetCurrentIndex({currentIndex: index}))
     this.songReady = false
   }
 
-  onPercentChange(pre:number) {
-    this.audioEl.currentTime = this.duration * (pre / 100)
+  onPercentChange(pre: number) {
+    if (this.currentSong) {
+      this.audioEl.currentTime = this.duration * (pre / 100)
+    }
   }
 }
