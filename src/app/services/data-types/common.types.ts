@@ -48,3 +48,8 @@ export type Singer = {
   albumSize: number
   tracks:Song
 }
+
+export type Lyric = {
+  lyric: string
+  tlyric:string
+}

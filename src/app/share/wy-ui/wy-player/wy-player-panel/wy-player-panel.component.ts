@@ -13,6 +13,8 @@ import {findIndex} from 'src/app/utils/array';
 import {Song} from "../../../../services/data-types/common.types";
 import {WyScrollComponent} from "../wy-scroll/wy-scroll.component";
 import {WINDOW} from "../../../../services/services.module";
+import {SongService} from "../../../../services/song.service";
+import {BaseLyricLine, WyLyric} from "./wy-lyric";
 
 @Component({
   selector: 'app-wy-player-panel',
@@ -22,7 +24,6 @@ import {WINDOW} from "../../../../services/services.module";
 export class WyPlayerPanelComponent implements OnInit, OnChanges {
   @Input() songList: Song[]
   @Input() currentSong: Song
-  currentIndex: number
   @Input() show: boolean
 
   @Output() onClose = new EventEmitter<void>()
@@ -31,8 +32,10 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
   @ViewChildren(WyScrollComponent) private wyScroll: QueryList<WyScrollComponent>
 
   scrollY = 0
+  currentIndex: number
+  currentLyric:BaseLyricLine[]
 
-  constructor(@Inject(WINDOW) private win:Window) {
+  constructor(@Inject(WINDOW) private win: Window,private songServe:SongService) {
   }
 
   ngOnInit(): void {
@@ -46,6 +49,7 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
     if (changes['currentSong']) {
       if (this.currentSong) {
         this.currentIndex = findIndex(this.songList, this.currentSong)
+        this.updateLyric()
         if (this.show) {
           this.scrollToCurrent()
         }
@@ -55,6 +59,7 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
     if (changes['show']) {
       if (!changes['show'].firstChange && this.show) {
         this.wyScroll.first.refreshScroll()
+        this.wyScroll.last.refreshScroll()
         if (this.currentSong) {
           this.win.setTimeout(() => {
             this.scrollToCurrent(0)
@@ -76,4 +81,11 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
     }
   }
 
+  private updateLyric() {
+    this.songServe.getLyric(this.currentSong.id).subscribe(res => {
+      console.log(res);
+      const lyric = new WyLyric(res)
+      this.currentLyric = lyric.lines
+    })
+  }
 }

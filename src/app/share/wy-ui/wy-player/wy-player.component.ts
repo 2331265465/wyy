@@ -38,7 +38,7 @@ export class WyPlayerComponent implements OnInit {
 
   duration = 0
   currentTime: number
-  volume = 60 //音量百分比
+  volume = 10 //音量百分比
   showVolumePanel = false //是否显示音量面板
   playing = false //播放状态
   songReady = false //是否可以播放
