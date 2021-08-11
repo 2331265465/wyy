@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Inject, OnInit, ViewChild} from '@angular/core';
 import {select, Store} from "@ngrx/store";
 import {AppStoreModule} from "../../../store/store.module";
 import {
@@ -11,9 +11,16 @@ import {
 } from "../../../store/selectors/player.selector";
 import {Song} from "../../../services/data-types/common.types";
 import {PlayMode} from "./player-type";
-import {SetCurrentIndex} from "../../../store/actions/player.actions";
+import {SetCurrentIndex, SetPlayList, SetPlayMode} from "../../../store/actions/player.actions";
 import {fromEvent, Subscription} from "rxjs";
 import {DOCUMENT} from "@angular/common";
+import {findIndex, shuffle} from "../../../utils/array";
+
+const modeTypes: PlayMode[] = [
+  {type: 'loop', label: '循环'},
+  {type: 'random', label: '随机'},
+  {type: 'singleLoop', label: '单曲循环'},
+]
 
 @Component({
   selector: 'app-wy-player',
@@ -37,11 +44,13 @@ export class WyPlayerComponent implements OnInit {
   songReady = false //是否可以播放
   selfClick = false //是否点击的是音量面板本身
   private winClick: Subscription
-
+  currentMode: PlayMode //当前模式
+  modeCount = 0 //点击模式多少次
+  showPanel = false
   @ViewChild('audio', {static: true}) private audio: ElementRef
   private audioEl: HTMLAudioElement
 
-  constructor(private store$: Store<AppStoreModule>,@Inject(DOCUMENT) private doc:Document) {
+  constructor(private store$: Store<AppStoreModule>, @Inject(DOCUMENT) private doc: Document) {
     const appStore$ = store$.select(selectPlayer)
     const stateArr = [
       {
@@ -74,35 +83,44 @@ export class WyPlayerComponent implements OnInit {
     this.audioEl = this.audio.nativeElement
   }
 
-  toggleVolPanel(e: MouseEvent) {
-    this.togglePanel()
+  toggleVolPanel() {
+    this.togglePanel('showVolumePanel')
+  }
+  toggleListPanel() {
+    if (this.songList.length) {
+      this.togglePanel('showPanel')
+    }
   }
 
-  togglePanel() {
-    this.showVolumePanel = !this.showVolumePanel
-    if (this.showVolumePanel) {
+  togglePanel(type:string) {
+    this[type] = !this[type]
+    if (this.showVolumePanel || this.showPanel) {
       this.bindDocumentClickListener()
-    }else {
+    } else {
       this.unBindDocumentClickListener()
     }
   }
+
   private bindDocumentClickListener() {
-    if(!this.winClick) {
-      this.winClick = fromEvent(this.doc,'click').subscribe(() => {
+    if (!this.winClick) {
+      this.winClick = fromEvent(this.doc, 'click').subscribe(() => {
         if (!this.selfClick) { //说明点击了播放器以外的部分
           this.showVolumePanel = false
+          this.showPanel = false
           this.unBindDocumentClickListener()
         }
         this.selfClick = false
       })
     }
   }
+
   unBindDocumentClickListener() {
     if (this.winClick) {
       this.winClick.unsubscribe()
       this.winClick = null
     }
   }
+
   onChangeVolume(per: number) {
     this.audioEl.volume = per / 100
   }
@@ -120,7 +138,20 @@ export class WyPlayerComponent implements OnInit {
   }
 
   private watchPlayMode(mode: PlayMode) {
-    // this.mode = mode
+    this.currentMode = mode
+    if (this.songList) {
+      let list = this.songList.slice()
+      if (mode.type === 'random') {
+        list = shuffle(this.songList)
+        this.updateCurrentIndex(list, this.currentSong)
+        this.store$.dispatch(SetPlayList({playList: list}))
+      }
+    }
+  }
+
+  private updateCurrentIndex(list: Song[], song: Song) {
+    const newIndex = findIndex(list,song)
+    this.store$.dispatch(SetCurrentIndex({currentIndex: newIndex}))
   }
 
   private watchCurrentSong(song: Song) {
@@ -177,7 +208,7 @@ export class WyPlayerComponent implements OnInit {
     if (this.playList.length === 1) {
       this.loop()
     } else {
-      const newIndex = index <= 0 ? this.playList.length - 1 : index
+      const newIndex = index < 0 ? this.playList.length - 1 : index
       this.updateIndex(newIndex)
     }
   }
@@ -193,10 +224,25 @@ export class WyPlayerComponent implements OnInit {
     }
   }
 
+  //播放结束
+  onEnded() {
+    this.playing = false
+    if (this.currentMode.type === 'singleLoop') {
+      this.loop()
+    }else {
+      this.onNext(this.currentIndex + 1)
+    }
+  }
+
   //单曲循环
   loop() {
     this.audioEl.currentTime = 0
     this.play()
+  }
+
+  //改变播放模式
+  changeMode() {
+    this.store$.dispatch(SetPlayMode({playMode: modeTypes[++this.modeCount % 3]}))
   }
 
   private updateIndex(index: number) {
@@ -208,5 +254,10 @@ export class WyPlayerComponent implements OnInit {
     if (this.currentSong) {
       this.audioEl.currentTime = this.duration * (pre / 100)
     }
+  }
+
+  //切换歌曲
+  changeSong(song:Song) {
+    this.updateCurrentIndex(this.playList,song)
   }
 }

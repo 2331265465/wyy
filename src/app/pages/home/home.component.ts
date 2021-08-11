@@ -4,9 +4,12 @@ import {NzCarouselComponent} from "ng-zorro-antd/carousel";
 import {ActivatedRoute} from "@angular/router";
 import {map} from "rxjs/operators";
 import {SheetService} from "../../services/sheet.service";
-import {Store} from "@ngrx/store";
+import {select, Store} from "@ngrx/store";
 import {AppStoreModule} from "../../store/store.module";
 import {SetCurrentIndex, SetPlayList, SetSongList} from "../../store/actions/player.actions";
+import {selectPlayer} from "../../store/selectors/player.selector";
+import {PlayState} from "../../store/reducers/player.reducer";
+import {findIndex, shuffle} from "../../utils/array";
 
 @Component({
   selector: 'app-home',
@@ -19,13 +22,15 @@ export class HomeComponent implements OnInit {
   songSheetList: SongSheet[]
   singers: Singer[]
   carouselActiveIndex: number
+  playerState: PlayState
   @ViewChild(NzCarouselComponent, {static: true}) private nzCarousel: NzCarouselComponent
 
   constructor(
-    private route:ActivatedRoute,
-    private sheetServe:SheetService,
-    private store$:Store<AppStoreModule>
+    private route: ActivatedRoute,
+    private sheetServe: SheetService,
+    private store$: Store<AppStoreModule>
   ) {
+    this.store$.pipe(select(selectPlayer)).subscribe(res => this.playerState = res)
   }
 
   ngOnInit(): void {
@@ -45,11 +50,17 @@ export class HomeComponent implements OnInit {
     this.nzCarousel[type]()
   }
 
-  onPlaySheet(id:number) {
+  onPlaySheet(id: number) {
     this.sheetServe.playSheet(id).subscribe(list => {
-      this.store$.dispatch(SetSongList({songList:list}))
-      this.store$.dispatch(SetPlayList({playList:list}))
-      this.store$.dispatch(SetCurrentIndex({currentIndex:0}))
+      this.store$.dispatch(SetSongList({songList: list}))
+      let trueIndex = 0
+      let trueList = list.slice()
+      if (this.playerState.playMode.type === 'random') {
+        trueList = shuffle(list || [])
+        trueIndex = findIndex(trueList, list[trueIndex])
+      }
+      this.store$.dispatch(SetPlayList({playList: trueList}))
+      this.store$.dispatch(SetCurrentIndex({currentIndex: trueIndex}))
     })
   }
 

@@ -24,7 +24,7 @@ import {WyUiModule} from "./wy-ui/wy-ui.module";
     NzIconModule,
     WyUiModule
   ],
-  exports:[
+  exports: [
     FormsModule,
     NzButtonModule,
     CommonModule,
