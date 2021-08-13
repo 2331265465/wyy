@@ -51,5 +51,6 @@ export type Singer = {
 
 export type Lyric = {
   lyric: string
-  tlyric:string
+  tlyric?:string
+  nolyric:boolean
 }

@@ -83,7 +83,6 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
 
   private updateLyric() {
     this.songServe.getLyric(this.currentSong.id).subscribe(res => {
-      console.log(res);
       const lyric = new WyLyric(res)
       this.currentLyric = lyric.lines
     })

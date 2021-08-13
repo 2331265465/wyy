@@ -40,9 +40,17 @@ export class SongService {
     const params = new HttpParams().set('id', id.toString())
     return this.http.get(this.uri + 'lyric', {params})
       .pipe(map((res: { [key: string]: { lyric: string } }) => {
-        return {
-          lyric: res.lrc.lyric,
-          tlyric: res.tlyric.lyric
+        if (res.nolyric) {
+          return {
+            lyric:'此歌曲为没有填词的纯音乐,请您欣赏',
+            nolyric:true
+          }
+        }else {
+          return {
+            lyric: res.lrc.lyric,
+            tlyric: res.tlyric.lyric,
+            nolyric: false
+          }
         }
       }))
   }
