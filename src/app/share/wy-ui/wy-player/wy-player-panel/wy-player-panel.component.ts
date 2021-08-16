@@ -23,6 +23,7 @@ import {BaseLyricLine, WyLyric} from "./wy-lyric";
 })
 export class WyPlayerPanelComponent implements OnInit, OnChanges {
   @Input() songList: Song[]
+  @Input() playing: boolean
   @Input() currentSong: Song
   @Input() show: boolean
 
@@ -33,15 +34,24 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
 
   scrollY = 0
   currentIndex: number
-  currentLyric:BaseLyricLine[]
-
-  constructor(@Inject(WINDOW) private win: Window,private songServe:SongService) {
+  currentLyric: BaseLyricLine[] = []
+  lyric: WyLyric
+  currentLineNum: number
+  constructor(@Inject(WINDOW) private win: Window, private songServe: SongService) {
   }
 
   ngOnInit(): void {
   }
 
+
+
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['playing']) {
+      if (!changes['playing'].firstChange) {
+        this.lyric && this.lyric.togglePlay(this.playing)
+      }
+    }
+
     if (changes['songList']) {
       this.currentIndex = 0
     }
@@ -67,6 +77,7 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
         }
       }
     }
+
   }
 
   private scrollToCurrent(speed = 300) {
@@ -83,8 +94,20 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
 
   private updateLyric() {
     this.songServe.getLyric(this.currentSong.id).subscribe(res => {
-      const lyric = new WyLyric(res)
-      this.currentLyric = lyric.lines
+      this.lyric = new WyLyric(res)
+      this.currentLyric = this.lyric.lines
+      this.handleLyric()
+      this.wyScroll.last.scrollTo(0, 0)
+      if (this.playing) {
+        this.lyric.play()
+      }
     })
   }
+
+  handleLyric() {
+    this.lyric.handler.subscribe(({lineNum}) => {
+      this.currentLineNum = lineNum
+    })
+  }
+
 }
