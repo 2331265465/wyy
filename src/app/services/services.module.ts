@@ -9,14 +9,7 @@ export const WINDOW = new InjectionToken('WindowToken')
   imports: [
   ],
   providers:[
-    {provide: API_CONFIG, useValue:'http://localhost:3000/'},
-    {
-      provide: WINDOW,
-      useFactory(platFormId:Object):Window | Object {
-        return isPlatformBrowser(platFormId) ? window : {}
-      },
-      deps:[PLATFORM_ID]
-    }
+    {provide: API_CONFIG, useValue:'http://localhost:3000/'}
   ]
 })
 export class ServicesModule { }

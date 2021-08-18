@@ -12,9 +12,9 @@ import {
 import {findIndex} from 'src/app/utils/array';
 import {Song} from "../../../../services/data-types/common.types";
 import {WyScrollComponent} from "../wy-scroll/wy-scroll.component";
-import {WINDOW} from "../../../../services/services.module";
 import {SongService} from "../../../../services/song.service";
 import {BaseLyricLine, WyLyric} from "./wy-lyric";
+import {timer} from "rxjs";
 
 @Component({
   selector: 'app-wy-player-panel',
@@ -29,20 +29,24 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
 
   @Output() onClose = new EventEmitter<void>()
   @Output() onChangeSong = new EventEmitter<Song>()
+  @Output() onDeleteSong = new EventEmitter<Song>()
+  @Output() onClearSong = new EventEmitter<void>()
 
   @ViewChildren(WyScrollComponent) private wyScroll: QueryList<WyScrollComponent>
 
   scrollY = 0
-  currentIndex: number
+  currentIndex:number
   currentLyric: BaseLyricLine[] = []
   lyric: WyLyric
   currentLineNum: number
-  constructor(@Inject(WINDOW) private win: Window, private songServe: SongService) {
+  lyricRefs: NodeList
+  startLine = 3
+
+  constructor(private songServe: SongService) {
   }
 
   ngOnInit(): void {
   }
-
 
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -53,16 +57,20 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
     }
 
     if (changes['songList']) {
-      this.currentIndex = 0
+      if (this.currentSong) {
+        this.updateCurrentIndex()
+      }
     }
 
     if (changes['currentSong']) {
       if (this.currentSong) {
-        this.currentIndex = findIndex(this.songList, this.currentSong)
+        this.updateCurrentIndex()
         this.updateLyric()
         if (this.show) {
           this.scrollToCurrent()
         }
+      } else {
+        this.resetLyric()
       }
     }
 
@@ -70,14 +78,22 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
       if (!changes['show'].firstChange && this.show) {
         this.wyScroll.first.refreshScroll()
         this.wyScroll.last.refreshScroll()
-        if (this.currentSong) {
-          this.win.setTimeout(() => {
-            this.scrollToCurrent(0)
-          }, 80)
-        }
+          timer(80).subscribe(() => {
+            if (this.currentSong) {
+              console.log('scrollToCurrent')
+              this.scrollToCurrent(0)
+            }
+            if (this.lyricRefs) {
+              this.scrollToCurrentLyric(0)
+            }
+          })
+
       }
     }
+  }
 
+  private updateCurrentIndex() {
+    this.currentIndex = findIndex(this.songList, this.currentSong)
   }
 
   private scrollToCurrent(speed = 300) {
@@ -92,10 +108,21 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
     }
   }
 
+  private scrollToCurrentLyric(speed = 300) {
+    if (this.lyricRefs) {
+      const targetLine = this.lyricRefs[this.currentLineNum - this.startLine]
+      if (targetLine) {
+        this.wyScroll.last.scrollToElement(targetLine, speed, false, false)
+      }
+    }
+  }
+
   private updateLyric() {
+    this.resetLyric()
     this.songServe.getLyric(this.currentSong.id).subscribe(res => {
       this.lyric = new WyLyric(res)
       this.currentLyric = this.lyric.lines
+      this.startLine = res.tlyric ? 0 : 3
       this.handleLyric()
       this.wyScroll.last.scrollTo(0, 0)
       if (this.playing) {
@@ -106,8 +133,34 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
 
   handleLyric() {
     this.lyric.handler.subscribe(({lineNum}) => {
-      this.currentLineNum = lineNum
+      if (!this.lyricRefs) {
+        this.lyricRefs = this.wyScroll.last.el.nativeElement.querySelectorAll('ul li')
+      }
+      if (this.lyricRefs.length) {
+        this.currentLineNum = lineNum
+        if (lineNum > this.startLine) {
+         this.scrollToCurrentLyric()
+        } else {
+          this.wyScroll.last.scrollTo(0, 0)
+        }
+      }
     })
   }
 
+  resetLyric() {
+    if (this.lyric) {
+      this.lyric.stop()
+      this.lyric = null
+      this.currentLyric = []
+      this.currentLineNum = 0
+      this.lyricRefs = null
+    }
+  }
+
+  seekLyric(time: number) {
+    if (this.lyric) {
+      this.lyric.seek(time)
+    }
+  }
 }
+

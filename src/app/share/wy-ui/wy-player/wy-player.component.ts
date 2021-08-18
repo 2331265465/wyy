@@ -11,10 +11,12 @@ import {
 } from "../../../store/selectors/player.selector";
 import {Song} from "../../../services/data-types/common.types";
 import {PlayMode} from "./player-type";
-import {SetCurrentIndex, SetPlayList, SetPlayMode} from "../../../store/actions/player.actions";
-import {fromEvent, Subscription} from "rxjs";
+import {SetCurrentIndex, SetPlayList, SetPlayMode, SetSongList} from "../../../store/actions/player.actions";
 import {DOCUMENT} from "@angular/common";
 import {findIndex, shuffle} from "../../../utils/array";
+import {WyPlayerPanelComponent} from "./wy-player-panel/wy-player-panel.component";
+import {NzModalService} from "ng-zorro-antd/modal";
+import {BatchActionsService} from "../../../store/batch-actions.service";
 
 const modeTypes: PlayMode[] = [
   {type: 'loop', label: '循环'},
@@ -38,28 +40,33 @@ export class WyPlayerComponent implements OnInit {
 
   duration = 0
   currentTime: number
-  volume = 10 //音量百分比
+  volume = 5 //音量百分比
   showVolumePanel = false //是否显示音量面板
   playing = false //播放状态
   songReady = false //是否可以播放
-  selfClick = false //是否点击的是音量面板本身
-  private winClick: Subscription
+  bindFlag = false //是否绑定document click事件
   currentMode: PlayMode //当前模式
   modeCount = 0 //点击模式多少次
   showPanel = false
   @ViewChild('audio', {static: true}) private audio: ElementRef
+  @ViewChild(WyPlayerPanelComponent, {static: false}) private playerPanel: WyPlayerPanelComponent
   private audioEl: HTMLAudioElement
 
-  constructor(private store$: Store<AppStoreModule>, @Inject(DOCUMENT) private doc: Document) {
+  constructor(
+    private store$: Store<AppStoreModule>,
+    @Inject(DOCUMENT) private doc: Document,
+    private nzModalServe:NzModalService,
+    private batchActionsServe:BatchActionsService
+  ) {
     const appStore$ = store$.select(selectPlayer)
     const stateArr = [
       {
         type: getSongList,
-        callback: list => this.watchPlayList(list, 'songList')
+        callback: list => this.watchPlayList(list)
       },
       {
         type: getPlayList,
-        callback: list => this.watchSongList(list, 'playlist')
+        callback: list => this.watchSongList(list)
       },
       {
         type: getCurrentIndex,
@@ -86,50 +93,27 @@ export class WyPlayerComponent implements OnInit {
   toggleVolPanel() {
     this.togglePanel('showVolumePanel')
   }
+
   toggleListPanel() {
     if (this.songList.length) {
       this.togglePanel('showPanel')
     }
   }
 
-  togglePanel(type:string) {
+  togglePanel(type: string) {
     this[type] = !this[type]
-    if (this.showVolumePanel || this.showPanel) {
-      this.bindDocumentClickListener()
-    } else {
-      this.unBindDocumentClickListener()
-    }
-  }
-
-  private bindDocumentClickListener() {
-    if (!this.winClick) {
-      this.winClick = fromEvent(this.doc, 'click').subscribe(() => {
-        if (!this.selfClick) { //说明点击了播放器以外的部分
-          this.showVolumePanel = false
-          this.showPanel = false
-          this.unBindDocumentClickListener()
-        }
-        this.selfClick = false
-      })
-    }
-  }
-
-  unBindDocumentClickListener() {
-    if (this.winClick) {
-      this.winClick.unsubscribe()
-      this.winClick = null
-    }
+    this.bindFlag = this.showVolumePanel || this.showPanel
   }
 
   onChangeVolume(per: number) {
     this.audioEl.volume = per / 100
   }
 
-  private watchSongList(list: Song[], type: string) {
+  private watchSongList(list: Song[]) {
     this.songList = list
   }
 
-  private watchPlayList(list: Song[], type: string) {
+  private watchPlayList(list: Song[]) {
     this.playList = list
   }
 
@@ -143,14 +127,14 @@ export class WyPlayerComponent implements OnInit {
       let list = this.songList.slice()
       if (mode.type === 'random') {
         list = shuffle(this.songList)
-        this.updateCurrentIndex(list, this.currentSong)
-        this.store$.dispatch(SetPlayList({playList: list}))
       }
+      this.updateCurrentIndex(list, this.currentSong)
+      this.store$.dispatch(SetPlayList({playList: list}))
     }
   }
 
   private updateCurrentIndex(list: Song[], song: Song) {
-    const newIndex = findIndex(list,song)
+    const newIndex = findIndex(list, song)
     this.store$.dispatch(SetCurrentIndex({currentIndex: newIndex}))
   }
 
@@ -229,7 +213,7 @@ export class WyPlayerComponent implements OnInit {
     this.playing = false
     if (this.currentMode.type === 'singleLoop') {
       this.loop()
-    }else {
+    } else {
       this.onNext(this.currentIndex + 1)
     }
   }
@@ -238,6 +222,9 @@ export class WyPlayerComponent implements OnInit {
   loop() {
     this.audioEl.currentTime = 0
     this.play()
+    if (this.playerPanel) {
+      this.playerPanel.seekLyric(0)
+    }
   }
 
   //改变播放模式
@@ -252,12 +239,39 @@ export class WyPlayerComponent implements OnInit {
 
   onPercentChange(pre: number) {
     if (this.currentSong) {
-      this.audioEl.currentTime = this.duration * (pre / 100)
+      const currentTime = this.duration * (pre / 100)
+      this.audioEl.currentTime = currentTime
+      if (this.playerPanel) {
+        this.playerPanel.seekLyric(currentTime * 1000)
+      }
+
     }
   }
 
   //切换歌曲
-  changeSong(song:Song) {
-    this.updateCurrentIndex(this.playList,song)
+  changeSong(song: Song) {
+    this.updateCurrentIndex(this.playList, song)
+  }
+
+  //删除歌曲
+  onDeleteSong(song: Song) {
+    this.batchActionsServe.deleteSong(song)
+
+  }
+
+  //清空歌曲
+  onClearSong() {
+    this.nzModalServe.confirm({
+      nzTitle:'确认清空列表?',
+      nzOnOk: () => {
+        this.batchActionsServe.clearSong()
+      }
+    })
+  }
+
+  onClickOutSide() {
+    this.showVolumePanel = false
+    this.showPanel = false
+    this.bindFlag = false
   }
 }

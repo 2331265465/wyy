@@ -6,7 +6,7 @@
         <i class="icon" title="收藏全部"></i>收藏全部
       </div>
       <span class="line"></span>
-      <div class="clear-all">
+      <div class="clear-all" (click)="onClearSong.emit()">
         <i class="icon trush" title="清除"></i>清除
       </div>
       <p class="playing-name">{{currentSong?.name}}</p>
@@ -25,7 +25,7 @@
           <div class="col icons">
             <i class="ico like" title="收藏"></i>
             <i class="ico share" title="分享"></i>
-            <i class="ico trush" title="删除"></i>
+            <i class="ico trush" (click)="onDeleteSong.emit(item)" title="删除"></i>
           </div>
           <div class="singers clearfix ellipsis">
             <div class="singer-item" *ngFor="let singer of item.ar; last as isLast">
@@ -39,7 +39,7 @@
       </ul>
     </app-wy-scroll>
 
-    <app-wy-scroll class="list-lyric">
+    <app-wy-scroll class="list-lyric" [data]="currentLyric">
       <ul>
         <li *ngFor="let item of currentLyric; index as i" [class.current]="currentLineNum === i">
           {{item.txt}} <br> {{item.txtCn}}

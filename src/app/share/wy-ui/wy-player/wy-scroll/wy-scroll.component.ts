@@ -10,6 +10,7 @@ import BScroll from "@better-scroll/core";
 import ScrollBar from "@better-scroll/scroll-bar";
 import MouseWheel from "@better-scroll/mouse-wheel";
 import {WINDOW} from "../../../../services/services.module";
+import {timer} from "rxjs";
 
 BScroll.use(ScrollBar)
 BScroll.use(MouseWheel)
@@ -40,7 +41,7 @@ export class WyScrollComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() data: any[]
   @Output() private onScrollEnd = new EventEmitter<any>()
 
-  constructor(readonly el: ElementRef,@Inject(WINDOW) private win:Window) {
+  constructor(readonly el: ElementRef) {
   }
 
   ngOnInit(): void {
@@ -63,9 +64,10 @@ export class WyScrollComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   refreshScroll() {
-    this.win.setTimeout(() => {
+    timer(this.refreshDelay).subscribe(() => {
       this.refresh()
-    }, this.refreshDelay)
+
+    })
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -79,6 +81,6 @@ export class WyScrollComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   scrollTo(...args) {
-    this.bs.scrollTo.apply(this.bs,args)
+    this.bs.scrollTo.apply(this.bs, args)
   }
 }
