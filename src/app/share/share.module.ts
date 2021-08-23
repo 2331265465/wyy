@@ -9,6 +9,8 @@ import {NzMenuModule} from "ng-zorro-antd/menu";
 import {NzIconModule} from "ng-zorro-antd/icon";
 import {WyUiModule} from "./wy-ui/wy-ui.module";
 import {NzModalModule} from "ng-zorro-antd/modal";
+import {NzRadioModule} from "ng-zorro-antd/radio";
+import {NzPaginationModule} from "ng-zorro-antd/pagination";
 
 @NgModule({
   declarations: [],
@@ -22,7 +24,9 @@ import {NzModalModule} from "ng-zorro-antd/modal";
     NzMenuModule,
     NzIconModule,
     WyUiModule,
-    NzModalModule
+    NzModalModule,
+    NzRadioModule,
+    NzPaginationModule,
   ],
   exports: [
     FormsModule,
@@ -34,7 +38,9 @@ import {NzModalModule} from "ng-zorro-antd/modal";
     NzMenuModule,
     NzIconModule,
     WyUiModule,
-    NzModalModule
+    NzModalModule,
+    NzRadioModule,
+    NzPaginationModule,
   ]
 })
 export class ShareModule { }

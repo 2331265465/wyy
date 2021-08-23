@@ -17,13 +17,15 @@ export type SongSheet = {
   id: number
   name: string
   playCount: number
+  coverImgUrl: string
   picUrl: string
+  tracks: Song[]
 }
 
 //播放地址
 export type SongUrl = {
   id: number
-  url:string
+  url: string
 }
 
 //歌曲
@@ -32,12 +34,12 @@ export type Song = {
   name: string
   url: string
   ar: Singer[]
-  al:{
-    id:number
-    name:string
-    picUrl:string
+  al: {
+    id: number
+    name: string
+    picUrl: string
   }
-  dt:number
+  dt: number
 }
 
 //歌手
@@ -46,11 +48,16 @@ export type Singer = {
   name: string
   picUrl: string
   albumSize: number
-  tracks:Song
+  tracks: Song
 }
 
 export type Lyric = {
   lyric: string
-  tlyric?:string
-  nolyric:boolean
+  tlyric?: string
+  nolyric: boolean
+}
+
+export type SheetList = {
+  playlists: SongSheet[]
+  total: number
 }

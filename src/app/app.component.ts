@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +7,14 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'ng-wyy';
+  menu = [
+    {
+      label: '发现',
+      path: '/home'
+    },
+    {
+      label: '歌单',
+      path: '/sheet'
+    },
+  ]
 }
