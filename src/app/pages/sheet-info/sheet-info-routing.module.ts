@@ -1,9 +1,15 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {SheetInfoComponent} from "./sheet-info.component";
+import {SheetInfoResolver} from "./sheet-info.resolver";
 
 const routes: Routes = [
-  {path: 'sheetInfo/:id', component: SheetInfoComponent, data: {title: '歌单详情'}}
+  {
+    path: 'sheetInfo/:id',
+    component: SheetInfoComponent,
+    data: {title: '歌单详情'},
+    resolve: {sheetInfo: SheetInfoResolver}
+  }
 ];
 
 @NgModule({

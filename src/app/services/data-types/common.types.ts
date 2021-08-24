@@ -19,6 +19,15 @@ export type SongSheet = {
   playCount: number
   coverImgUrl: string
   picUrl: string
+  tags: string[]
+  createTime: number
+  creator: { nickname: string; avatarUrl: string }
+  description: string
+  subscribedCount: number
+  shareCount: number
+  commentCount: number
+  subscribed: boolean
+  userId:number
   tracks: Song[]
 }
 
