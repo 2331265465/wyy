@@ -1,16 +1,6 @@
 @import "../../../assets/styles/varibles";
 @import "../../../assets/styles/mixins";
-.alert {
-  width: 200px;
-  position: fixed;
-  left: 50%;
-  top: 25%;
-  z-index: 99;
-  transform: translate(-50%,-50%);
-  transition: all .5s;
-}
-
-.sheet-info{
+.song-info{
   .g-wrap6{
     padding: 47px 30px 40px 39px;
     .m-info{
@@ -65,25 +55,25 @@
           }
 
           .user{
-            margin: 0 0 20px;
-            line-height: 35px;
-            .face{
-              img{
+            margin: 0 0 12px;
+            .singers{
+              span{
                 float: left;
-                width: 35px;
-                height: 35px;
+              }
+              ul{
+                float: left;
+                li{
+                  float: left;
+                  .s-fc7{
+                    color: @link-color;
+                  }
+                }
               }
             }
-            .name{
-              float: left;
-              margin-left: 10px;
-              .s-fc7{
-                color: @link-color;
+            .al{
+              .al-name{
+                color: @wy-text-prev-color;
               }
-            }
-            .time{
-              margin-left: 15px;
-              color: @wy-text-prev-color;
             }
           }
 
@@ -94,51 +84,26 @@
               margin-right: 10px;
             }
           }
-          .tags{
-            margin: 25px 0 5px;
-            line-height: 22px;
-            span{
-              float: left;
-            }
-            .tag-wrap{
-              float: left;
-              margin-left: 15px;
-            }
-          }
-
-          .intr{
-            margin-top: 10px;
-            line-height: 18px;
-            color: #666;
-            &.f-hide{
-              display: none;
-            }
-          }
-
-          .expand{
-            text-align: right;
-            span{
-              color: @link-color;
-              cursor: pointer;
-            }
-          }
         }
       }
     }
-
-    .u-title{
-      h3{
-        float: left;
+    .lyric-info{
+      // width: 144px;
+      line-height: 23px;
+      .lyric-content{
+        height: 327px;
+        overflow: hidden;
+        &.expand{
+          height: auto;
+        }
+        .lyric-line p{
+          margin-bottom: 0;
+        }
       }
-      .sub{
-        float: left;
-        margin: 9px 0 0 20px;
-      }
-      .more{
-        float: right;
-        margin-top: 5px;
-        strong{
-          color: @red-color;
+      .toggle-expand{
+        cursor: pointer;
+        span{
+          color: @link-color;
         }
       }
     }

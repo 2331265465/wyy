@@ -1,8 +1,8 @@
 import {Inject, Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {API_CONFIG, ServicesModule} from "./services.module";
-import {observable, Observable, of} from "rxjs";
-import {Lyric, Song, SongSheet, SongUrl} from "./data-types/common.types";
+import {Observable} from "rxjs";
+import {Lyric, Song, SongUrl} from "./data-types/common.types";
 import {map} from "rxjs/operators";
 
 @Injectable({
@@ -25,6 +25,12 @@ export class SongService {
     return this.getSongUrl(ids).pipe(map(urls => this.generateSongList(songArr, urls)))
   }
 
+  getSongDetail(ids: string): Observable<Song> {
+    const params = new HttpParams().set('ids', ids)
+    return this.http.get(this.uri + 'song/detail', {params})
+      .pipe(map((res: { songs: Song }) => res.songs[0]))
+  }
+
   private generateSongList(songs: Song[], urls: SongUrl[]): Song[] {
     const result = []
     songs.forEach(song => {
@@ -36,16 +42,18 @@ export class SongService {
     return result
   }
 
+
+  //获取歌词
   getLyric(id: number): Observable<Lyric> {
     const params = new HttpParams().set('id', id.toString())
     return this.http.get(this.uri + 'lyric', {params})
       .pipe(map((res: { [key: string]: { lyric: string } }) => {
         if (res.nolyric) {
           return {
-            lyric:'此歌曲为没有填词的纯音乐,请您欣赏',
-            nolyric:true
+            lyric: '此歌曲为没有填词的纯音乐,请您欣赏',
+            nolyric: true
           }
-        }else {
+        } else {
           return {
             lyric: res.lrc.lyric,
             tlyric: res.tlyric.lyric,

@@ -11,6 +11,12 @@ export type HotTag = {
   name: string
   position: number
 }
+//
+
+export type SingerDetail = {
+  artist:Singer
+  hotSongs:Song[]
+}
 
 //歌单
 export type SongSheet = {
@@ -57,7 +63,6 @@ export type Singer = {
   name: string
   picUrl: string
   albumSize: number
-  tracks: Song
 }
 
 export type Lyric = {

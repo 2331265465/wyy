@@ -22,13 +22,13 @@
             <div class="navs">
               <h2>
                 <i></i>
-                <a href="">热门推荐</a>
+                <a>热门推荐</a>
               </h2>
               <nav>
                 <a *ngFor="let item of hotTags" routerLink="/sheet" [queryParams]="{cat:item.name}">{{item.name}}</a>
               </nav>
             </div>
-            <a href="">
+            <a>
               更多
               <i nz-icon nzType="arrow-right" theme="outline"></i>
             </a>
@@ -51,7 +51,7 @@
         <div class="settled-singer">
           <div class="tit"><b>入驻歌手</b></div>
           <div class="list">
-            <div class="card" *ngFor="let item of singers">
+            <div class="card" *ngFor="let item of singers" [routerLink]="['/singer',item.id]">
               <div class="pic"><img [src]="item.picUrl" [alt]="item.name"></div>
               <div class="txt">
                 <b class="ellipsis">{{item.name}}</b>

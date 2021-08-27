@@ -13,6 +13,7 @@ import {NzRadioModule} from "ng-zorro-antd/radio";
 import {NzPaginationModule} from "ng-zorro-antd/pagination";
 import {NzTagModule} from "ng-zorro-antd/tag";
 import {NzTableModule} from "ng-zorro-antd/table";
+import {NzMessageModule} from "ng-zorro-antd/message";
 
 @NgModule({
   declarations: [],
@@ -31,6 +32,7 @@ import {NzTableModule} from "ng-zorro-antd/table";
     NzPaginationModule,
     NzTagModule,
     NzTableModule,
+    NzMessageModule,
   ],
   exports: [
     FormsModule,
@@ -47,6 +49,7 @@ import {NzTableModule} from "ng-zorro-antd/table";
     NzPaginationModule,
     NzTagModule,
     NzTableModule,
+    NzMessageModule,
   ]
 })
 export class ShareModule { }
