@@ -2,7 +2,7 @@
   <div class="g-wrap6">
     <div class="m-info clearfix">
       <div class="cover">
-        <img [src]="song.url" [alt]="song.name">
+        <img [src]="song.al.picUrl" [alt]="song.name">
         <div class="mask"></div>
       </div>
       <div class="cnt">
@@ -18,7 +18,7 @@
               <span>歌手:</span>
               <ul class="clearfix">
                 <li *ngFor="let singer of song.ar; last as isLast">
-                  <a [href]="'//music.163.com/artist?id=' + singer.id">{{singer.name}}</a>
+                  <a [routerLink]="['/singer',singer.id]">{{singer.name}}</a>
                   <i [hidden]="isLast">/</i>
                 </li>
               </ul>

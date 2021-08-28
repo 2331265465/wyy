@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { SingerRoutingModule } from './singer-routing.module';
 import {ShareModule} from "../../share/share.module";
+import {SingerDetailComponent} from "./singer-detail/singer-detail.component";
 
 
 @NgModule({
-  declarations: [],
+  declarations: [SingerDetailComponent],
   imports: [
     ShareModule,
     SingerRoutingModule

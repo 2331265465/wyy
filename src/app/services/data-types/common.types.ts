@@ -63,6 +63,7 @@ export type Singer = {
   name: string
   picUrl: string
   albumSize: number
+  alias:string[]
 }
 
 export type Lyric = {

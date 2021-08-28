@@ -4,12 +4,11 @@ import {SheetListModule} from "./sheet-list/sheet-list.module";
 import {SheetInfoModule} from "./sheet-info/sheet-info.module";
 import {SongInfoModule} from "./song-info/song-info.module";
 import {SingerModule} from "./singer/singer.module";
-import { SingerDetailComponent } from './singer/singer-detail/singer-detail.component';
 
 
 
 @NgModule({
-  declarations: [SingerDetailComponent],
+  declarations: [],
   imports: [
     HomeModule,
     SheetListModule,

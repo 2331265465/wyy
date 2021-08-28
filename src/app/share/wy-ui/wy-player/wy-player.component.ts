@@ -17,6 +17,7 @@ import {findIndex, shuffle} from "../../../utils/array";
 import {WyPlayerPanelComponent} from "./wy-player-panel/wy-player-panel.component";
 import {NzModalService} from "ng-zorro-antd/modal";
 import {BatchActionsService} from "../../../store/batch-actions.service";
+import {Router} from "@angular/router";
 
 const modeTypes: PlayMode[] = [
   {type: 'loop', label: '循环'},
@@ -56,7 +57,8 @@ export class WyPlayerComponent implements OnInit {
     private store$: Store<AppStoreModule>,
     @Inject(DOCUMENT) private doc: Document,
     private nzModalServe:NzModalService,
-    private batchActionsServe:BatchActionsService
+    private batchActionsServe:BatchActionsService,
+    private router:Router
   ) {
     const appStore$ = store$.select(selectPlayer)
     const stateArr = [
@@ -273,5 +275,13 @@ export class WyPlayerComponent implements OnInit {
     this.showVolumePanel = false
     this.showPanel = false
     this.bindFlag = false
+  }
+
+  toInfo(path: [string,number]) {
+    this.showPanel = false
+    this.showVolumePanel = false
+    if (path[1]) {
+      this.router.navigate(path)
+    }
   }
 }

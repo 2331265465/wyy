@@ -4,7 +4,7 @@ import {map, takeUntil} from "rxjs/operators";
 import {Song, SongSheet} from "../../services/data-types/common.types";
 import {select, Store} from "@ngrx/store";
 import {AppStoreModule} from "../../store/store.module";
-import {Observable, Subject, timer} from "rxjs";
+import {Subject} from "rxjs";
 import {getCurrentSong, selectPlayer} from "../../store/selectors/player.selector";
 import {SongService} from "../../services/song.service";
 import {BatchActionsService} from "../../store/batch-actions.service";

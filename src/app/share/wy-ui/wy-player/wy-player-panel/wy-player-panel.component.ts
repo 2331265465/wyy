@@ -31,6 +31,7 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
   @Output() onChangeSong = new EventEmitter<Song>()
   @Output() onDeleteSong = new EventEmitter<Song>()
   @Output() onClearSong = new EventEmitter<void>()
+  @Output() onToInfo = new EventEmitter<[string,number]>()
 
   @ViewChildren(WyScrollComponent) private wyScroll: QueryList<WyScrollComponent>
 
@@ -90,6 +91,11 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
 
       }
     }
+  }
+
+  toInfo(e:Event,path:[string,number]) {
+    e.stopPropagation()
+    this.onToInfo.emit(path)
   }
 
   private updateCurrentIndex() {
