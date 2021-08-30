@@ -1,0 +1,17 @@
+<div class="m-layer" [@showHide]="showModal" #modalContainer cdkDrag cdkDragBoundary=".cdk-overlay-container">
+  <div class="zbar" cdkDragHandle>
+    <div class="zttl f-thide">这是标题</div>
+  </div>
+  <ng-container [ngSwitch]="currentModalType">
+    <ng-container *ngSwitchCase="'LoginByPhone'">
+      <ng-content select="[name=login]"></ng-content>
+    </ng-container>
+    <ng-container *ngSwitchCase="'Register'">
+      <p>register</p>
+    </ng-container>
+    <ng-container *ngSwitchDefault>
+      <ng-content></ng-content>
+    </ng-container>
+  </ng-container>
+  <div class="zcls" title="关闭" (click)="hide()"></div>
+</div>

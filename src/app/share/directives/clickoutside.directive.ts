@@ -19,7 +19,7 @@ export class ClickoutsideDirective implements OnChanges{
   private handleClick: () => void;
 
   @Input() bindFlag = false
-  @Output() onClickOutSide = new EventEmitter<void>()
+  @Output() onClickOutSide = new EventEmitter<HTMLElement>()
 
   constructor(private el: ElementRef, private rd2: Renderer2, @Inject(DOCUMENT) private doc: Document) {
   }
@@ -30,9 +30,10 @@ export class ClickoutsideDirective implements OnChanges{
     if (changes['bindFlag'] && !changes['bindFlag'].firstChange) {
       if (this.bindFlag) {
         this.handleClick = this.rd2.listen(this.doc, 'click', e => {
-          const isContain = this.el.nativeElement.contains(e.target)
+          const target = e.target
+          const isContain = this.el.nativeElement.contains(target)
           if (!isContain) {
-            this.onClickOutSide.emit()
+            this.onClickOutSide.emit(target)
           }
         })
       }else {

@@ -6,10 +6,17 @@ export const WINDOW = new InjectionToken('WindowToken')
 
 @NgModule({
   declarations: [],
-  imports: [
-  ],
-  providers:[
-    {provide: API_CONFIG, useValue:'http://localhost:3000/'}
+  imports: [],
+  providers: [
+    {provide: API_CONFIG, useValue: 'http://localhost:3000/'},
+    {
+      provide: WINDOW,
+      useFactory(platformId: Object): Window | Object {
+        return isPlatformBrowser(platformId) ? window : {}
+      },
+      deps: [PLATFORM_ID]
+    }
   ]
 })
-export class ServicesModule { }
+export class ServicesModule {
+}

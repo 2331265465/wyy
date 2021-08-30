@@ -5,6 +5,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {map} from "rxjs/operators";
 import {SheetService} from "../../services/sheet.service";
 import {BatchActionsService} from "../../store/batch-actions.service";
+import {ModalTypes} from "../../store/reducers/member.reducer";
 
 @Component({
   selector: 'app-home',
@@ -21,9 +22,9 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router:Router,
+    private router: Router,
     private sheetServe: SheetService,
-    private patchActionsServe: BatchActionsService
+    private batchActionsServe: BatchActionsService
   ) {
   }
 
@@ -46,11 +47,15 @@ export class HomeComponent implements OnInit {
 
   onPlaySheet(id: number) {
     this.sheetServe.playSheet(id).subscribe(list => {
-      this.patchActionsServe.selectPlayList({list, index: 0})
+      this.batchActionsServe.selectPlayList({list, index: 0})
     })
   }
 
   toInfo(id: number) {
-    this.router.navigate(['/sheetInfo',id])
+    this.router.navigate(['/sheetInfo', id])
+  }
+
+  openModal() {
+    this.batchActionsServe.controlModal(true, ModalTypes.Default)
   }
 }
