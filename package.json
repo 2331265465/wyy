@@ -24,6 +24,7 @@
     "@better-scroll/scroll-bar": "^2.4.2",
     "@ngrx/store": "^11.1.1",
     "@ngrx/store-devtools": "^11.1.1",
+    "js-base64": "^3.6.1",
     "minireset.css": "0.0.7",
     "ng-zorro-antd": "^11.4.2",
     "qs": "^6.10.1",

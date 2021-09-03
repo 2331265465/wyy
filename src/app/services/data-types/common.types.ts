@@ -11,11 +11,11 @@ export type HotTag = {
   name: string
   position: number
 }
-//
 
+//歌手详情
 export type SingerDetail = {
-  artist:Singer
-  hotSongs:Song[]
+  artist: Singer
+  hotSongs: Song[]
 }
 
 //歌单
@@ -33,7 +33,7 @@ export type SongSheet = {
   shareCount: number
   commentCount: number
   subscribed: boolean
-  userId:number
+  userId: number
   tracks: Song[]
 }
 
@@ -63,7 +63,7 @@ export type Singer = {
   name: string
   picUrl: string
   albumSize: number
-  alias:string[]
+  alias: string[]
 }
 
 export type Lyric = {
@@ -78,7 +78,20 @@ export type SheetList = {
 }
 
 export type SearchResult = {
-  artists?:Singer[]
-  playlists?:SongSheet[]
-  songs?:Song[]
+  artists?: Singer[]
+  playlists?: SongSheet[]
+  songs?: Song[]
+}
+
+export type SignIn = {
+  code:number
+  point?:number
+  msg?:string
+}
+
+export interface SampleBack extends AnyJson{
+  code: number
+}
+export interface AnyJson  {
+  [key: string]: any
 }

@@ -10,8 +10,8 @@ import {Component, OnInit, ChangeDetectionStrategy, EventEmitter, Output} from '
             <img src="../../../../../assets/images/platform.png" alt="">
           </div>
           <div class="methods">
-            <button nz-button nzType="primary" nzSize="large" nzBlock (click)="onChangeModalType.emit('loginByPhone')">手机号登陆</button>
-            <button nz-button nzType="primary" nzSize="large" nzBlock (click)="onChangeModalType.emit('register')">注册</button>
+            <button nz-button nzType="primary" nzSize="large" nzBlock (click)="onChangeModalType.emit('LoginByPhone')">手机号登陆</button>
+            <button nz-button nzSize="large" nzBlock (click)="onChangeModalType.emit('Register')">注册</button>
           </div>
         </div>
       </div>

@@ -6,6 +6,11 @@ import {map} from "rxjs/operators";
 import {SheetService} from "../../services/sheet.service";
 import {BatchActionsService} from "../../store/batch-actions.service";
 import {ModalTypes} from "../../store/reducers/member.reducer";
+import {User} from "../../services/data-types/member";
+import {select, Store} from "@ngrx/store";
+import {AppStoreModule} from "../../store/store.module";
+import {getUserId, selectMember} from "../../store/selectors/member.selector";
+import {MemberService} from "../../services/member.service";
 
 @Component({
   selector: 'app-home',
@@ -18,13 +23,16 @@ export class HomeComponent implements OnInit {
   songSheetList: SongSheet[]
   singers: Singer[]
   carouselActiveIndex: number
+  user: User
   @ViewChild(NzCarouselComponent, {static: true}) private nzCarousel: NzCarouselComponent
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private sheetServe: SheetService,
-    private batchActionsServe: BatchActionsService
+    private batchActionsServe: BatchActionsService,
+    private memberServe: MemberService,
+    private store$: Store<AppStoreModule>
   ) {
   }
 
@@ -35,6 +43,17 @@ export class HomeComponent implements OnInit {
       this.songSheetList = sheets
       this.singers = singer
     })
+    this.store$.pipe(select(selectMember), select(getUserId)).subscribe(id => {
+      if (id) {
+        this.getUserDetail(id)
+      }else {
+        this.user = null
+      }
+    })
+  }
+
+  private getUserDetail(id: string) {
+    this.memberServe.getUserDetail(id).subscribe(user => this.user = user)
   }
 
   onBeforeChange({to}) {
