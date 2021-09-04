@@ -6,7 +6,7 @@ import {map} from "rxjs/operators";
 import {SheetService} from "../../services/sheet.service";
 import {BatchActionsService} from "../../store/batch-actions.service";
 import {ModalTypes} from "../../store/reducers/member.reducer";
-import {User} from "../../services/data-types/member";
+import {User} from "../../services/data-types/member.type";
 import {select, Store} from "@ngrx/store";
 import {AppStoreModule} from "../../store/store.module";
 import {getUserId, selectMember} from "../../store/selectors/member.selector";

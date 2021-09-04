@@ -127,9 +127,7 @@ export class WyPlayerComponent implements OnInit {
   }
 
   toggleListPanel() {
-    if (this.songList.length) {
       this.togglePanel('showPanel')
-    }
   }
 
   togglePanel(type: string) {

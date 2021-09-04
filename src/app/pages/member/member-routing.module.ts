@@ -1,12 +1,14 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {CenterComponent} from "./center/center.component";
+import {CenterResolver} from "./center/center.resolver";
 
 const routes: Routes = [
   {
-    path:'member/:id',
+    path:'member/:uid',
     component:CenterComponent,
-    data:{title:'个人中心'}
+    data:{title:'个人中心'},
+    resolve:{user:CenterResolver}
   }
 ];
 

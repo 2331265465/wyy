@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {User} from "../../../../services/data-types/member";
+import {User} from "../../../../services/data-types/member.type";
 import {MemberService} from "../../../../services/member.service";
 import {timer} from "rxjs";
 import {NzMessageService} from "ng-zorro-antd/message";

@@ -9,7 +9,7 @@ import {SetModalType, SetUserId} from "./store/actions/member.actions";
 import {BatchActionsService} from "./store/batch-actions.service";
 import {LoginParams} from "./share/wy-ui/wy-layer/wy-layer-login/wy-layer-login.component";
 import {MemberService} from "./services/member.service";
-import {User} from "./services/data-types/member";
+import {User} from "./services/data-types/member.type";
 import {NzMessageService} from "ng-zorro-antd/message";
 import {WINDOW} from "./services/services.module";
 import {codeJson} from "./utils/base64";
@@ -93,6 +93,7 @@ export class AppComponent {
     this.memberServe.login(params).subscribe(user => {
       if (user.code !== 200) return;
       this.user = user
+      console.log(this.user);
       this.batchActionsServe.controlModal(false)
       this.alertMessage('success','登陆成功')
       const userId = this.user.profile.userId
