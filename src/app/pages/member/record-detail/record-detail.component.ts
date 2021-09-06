@@ -1,29 +1,34 @@
 import {Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {map, takeUntil} from "rxjs/operators";
-import {RecordVal, User, UserSheet} from "../../../services/data-types/member.type";
-import {SheetService} from "../../../services/sheet.service";
-import {BatchActionsService} from "../../../store/batch-actions.service";
+import {RecordVal, User} from "../../../services/data-types/member.type";
 import {MemberService, RecordType} from "../../../services/member.service";
 import {Song} from "../../../services/data-types/common.types";
+import {Subject} from "rxjs";
+import {SheetService} from "../../../services/sheet.service";
+import {BatchActionsService} from "../../../store/batch-actions.service";
 import {SongService} from "../../../services/song.service";
 import {NzMessageService} from "ng-zorro-antd/message";
 import {select, Store} from "@ngrx/store";
 import {AppStoreModule} from "../../../store/store.module";
 import {getCurrentSong, selectPlayer} from "../../../store/selectors/player.selector";
 import {findIndex} from "../../../utils/array";
-import {Subject} from "rxjs";
 
 @Component({
-  selector: 'app-center',
-  templateUrl: './center.component.html',
-  styleUrls: ['./center.component.less'],
+  selector: 'app-record-detail',
+  templateUrl: './record-detail.component.html',
+  styles:[
+    `
+        .record-detail .page-wrap{
+          padding: 40px;
+        }
+    `
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CenterComponent implements OnInit,OnDestroy {
+export class RecordDetailComponent implements OnInit,OnDestroy {
   user: User
   records: RecordVal[]
-  userSheet: UserSheet
   recordType = RecordType.weekData
   currentIndex = -1
 
@@ -40,15 +45,15 @@ export class CenterComponent implements OnInit,OnDestroy {
     private store$:Store<AppStoreModule>,
     private cdr:ChangeDetectorRef
   ) {
-    route.data.pipe(map(res => res.user)).subscribe(([user, records, userSheet]) => {
+    this.route.data.pipe(map(res => res.user)).subscribe(([user,userRecord]) => {
       this.user = user
-      this.records = records.slice(0, 10)
-      this.userSheet = userSheet
+      this.records = userRecord
       this.listenCurrentSong()
     })
   }
 
   ngOnInit(): void {
+
   }
 
   onPlaySheet(id: number) {
@@ -61,7 +66,7 @@ export class CenterComponent implements OnInit,OnDestroy {
     if (this.recordType !== type) {
       this.recordType = type
       this.memberServe.getUserRecord(this.user.profile.userId.toString(), type)
-        .subscribe(records => this.records = records.slice(0, 10))
+        .subscribe(records => this.records = records)
     }
   }
 
@@ -96,4 +101,5 @@ export class CenterComponent implements OnInit,OnDestroy {
     this.destroy$.next()
     this.destroy$.complete()
   }
+
 }

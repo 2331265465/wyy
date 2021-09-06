@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {map, takeUntil} from "rxjs/operators";
-import {SingerDetail, Song} from "../../../services/data-types/common.types";
+import {Singer, SingerDetail, Song} from "../../../services/data-types/common.types";
 import {select, Store} from "@ngrx/store";
 import {AppStoreModule} from "../../../store/store.module";
 import {SongService} from "../../../services/song.service";
@@ -21,6 +21,8 @@ export class SingerDetailComponent implements OnInit,OnDestroy {
   currentIndex = -1
   currentSong:Song
   destroy$ = new Subject<void>()
+  simiSingers: Singer[]
+
   constructor(
     private route: ActivatedRoute,
     private store$: Store<AppStoreModule>,
@@ -28,8 +30,9 @@ export class SingerDetailComponent implements OnInit,OnDestroy {
     private batchActionServe: BatchActionsService,
     private messageServe: NzMessageService
   ) {
-    this.route.data.pipe(map(res => res.singerDetail)).subscribe(res => {
-      this.singerDetail = res
+    this.route.data.pipe(map(res => res.singerDetail)).subscribe(([singerDetail,singer]) => {
+      this.singerDetail = singerDetail
+      this.simiSingers = singer
       this.listenCurrent()
     })
   }
