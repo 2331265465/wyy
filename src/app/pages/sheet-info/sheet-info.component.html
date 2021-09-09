@@ -2,7 +2,7 @@
   <div class="g-wrap6">
     <div class="m-info clearfix">
       <div class="cover">
-        <img [src]="sheetInfo.coverImgUrl" [alt]="sheetInfo.name">
+        <img [src]="sheetInfo?.coverImgUrl" [alt]="sheetInfo.name">
         <div class="mask"></div>
       </div>
       <div class="cnt">
@@ -32,8 +32,8 @@
               </button>
               <button class="add" nz-button nzType="primary" (click)="onAddSongs(sheetInfo.tracks)">+</button>
             </nz-button-group>
-            <button class="btn like" nz-button>
-              <span>收藏</span>{{sheetInfo.subscribedCount}}
+            <button class="btn like" nz-button (click)="onLikeSheet(sheetInfo.id.toString())">
+              <span>{{subscribed ? '取消收藏'  : '收藏' }}</span>{{subscribed ? '' : sheetInfo.subscribedCount}}
             </button>
             <button class="btn share" nz-button>
               <span>分享</span>{{sheetInfo.shareCount}}
@@ -105,7 +105,7 @@
             <span>{{item.dt / 1000 | formatTime}}</span>
             <p class="icons">
               <i class="ico add" title="添加" (click)="onAddSong(item)"></i>
-              <i class="ico like" title="收藏"></i>
+              <i class="ico like" title="收藏" (click)="onLikeSong(item.id.toString())"></i>
               <i class="ico share" title="分享"></i>
             </p>
           </td>

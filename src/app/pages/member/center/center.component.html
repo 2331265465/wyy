@@ -55,7 +55,7 @@
           class="sheet-item"
           *ngFor="let item of userSheet.self"
           [sheet]="item"
-          [routerLink]="['/singer',item.id]"
+          [routerLink]="['/sheetInfo',item.id]"
           (onPlay)="onPlaySheet($event)"
         >
         </app-single-sheet>

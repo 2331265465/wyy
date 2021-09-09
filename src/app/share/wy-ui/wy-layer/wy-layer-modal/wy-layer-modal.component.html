@@ -9,6 +9,12 @@
     <ng-container *ngSwitchCase="'Register'">
       <p>register</p>
     </ng-container>
+    <ng-container *ngSwitchCase="'Like'">
+      <ng-content select="[name=like]"></ng-content>
+    </ng-container>
+    <ng-container *ngSwitchCase="'Share'">
+      <p>share</p>
+    </ng-container>
     <ng-container *ngSwitchDefault>
       <ng-content></ng-content>
     </ng-container>

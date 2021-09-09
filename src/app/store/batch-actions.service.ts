@@ -8,7 +8,7 @@ import {selectPlayer} from "./selectors/player.selector";
 import {CurrentActions, PlayState} from "./reducers/player.reducer";
 import {selectMember} from "./selectors/member.selector";
 import {MemberState, ModalTypes} from "./reducers/member.reducer";
-import {SetModalType, SetModalVisible} from "./actions/member.actions";
+import {SetLikeId, SetModalType, SetModalVisible} from "./actions/member.actions";
 
 @Injectable({
   providedIn: AppStoreModule
@@ -34,8 +34,6 @@ export class BatchActionsService {
     this.store$.dispatch(SetPlayList({playList: trueList}))
     this.store$.dispatch(SetCurrentIndex({currentIndex: trueIndex}))
     this.store$.dispatch(SetCurrentAction({currentAction: CurrentActions.Play}))
-    console.log('play')
-
   }
 
   //删除歌曲
@@ -110,14 +108,19 @@ export class BatchActionsService {
     this.store$.dispatch(SetPlayList({playList: []}))
     this.store$.dispatch(SetCurrentIndex({currentIndex: -1}))
     this.store$.dispatch(SetCurrentAction({currentAction: CurrentActions.Clear}))
-
   }
 
-  //会员弹唱显示隐藏/类型
-  controlModal(modalVisible = true,modalType?:ModalTypes) {
+  //会员弹窗显示隐藏/类型
+  controlModal(modalVisible = true,modalType = ModalTypes.Default) {
     if (modalType) {
       this.store$.dispatch(SetModalType({modalType}))
     }
     this.store$.dispatch(SetModalVisible({modalVisible}))
+  }
+
+  //收藏歌曲
+  likeSong(id:string) {
+    this.store$.dispatch(SetModalType({modalType:ModalTypes.Like}))
+    this.store$.dispatch(SetLikeId({id}))
   }
 }

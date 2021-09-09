@@ -10,13 +10,14 @@ import {SongService} from "../../services/song.service";
 import {BatchActionsService} from "../../store/batch-actions.service";
 import {NzMessageService} from "ng-zorro-antd/message";
 import {findIndex} from "../../utils/array";
+import {MemberService} from "../../services/member.service";
 
 @Component({
   selector: 'app-sheet-info',
   templateUrl: './sheet-info.component.html',
   styleUrls: ['./sheet-info.component.less']
 })
-export class SheetInfoComponent implements OnInit,OnDestroy {
+export class SheetInfoComponent implements OnInit, OnDestroy {
   sheetInfo: SongSheet
   description = {
     short: '',
@@ -29,19 +30,21 @@ export class SheetInfoComponent implements OnInit,OnDestroy {
   }
 
   private destroy$ = new Subject<void>()
-  private currentSong:Song
+  private currentSong: Song
   currentIndex = -1
-
+  subscribed = false
 
   constructor(
     private route: ActivatedRoute,
-    private store$:Store<AppStoreModule>,
-    private songServe:SongService,
-    private batchActionServe:BatchActionsService,
-    private messageServe:NzMessageService
+    private store$: Store<AppStoreModule>,
+    private songServe: SongService,
+    private batchActionServe: BatchActionsService,
+    private messageServe: NzMessageService,
+    private memberServe: MemberService,
   ) {
     this.route.data.pipe(map(res => res.sheetInfo)).subscribe(res => {
       this.sheetInfo = res
+      this.subscribed = res.subscribed
       if (res.description) {
         this.changeDesc(res.description)
       }
@@ -82,13 +85,13 @@ export class SheetInfoComponent implements OnInit,OnDestroy {
   }
 
   //添加一首歌曲
-  onAddSong(song: Song,isPlay = false) {
+  onAddSong(song: Song, isPlay = false) {
     if (!this.currentSong || this.currentSong.id !== song.id) {
       this.songServe.getSongList(song).subscribe(list => {
         if (list.length) {
-          this.batchActionServe.insertSong(list[0],isPlay)
-        }else {
-          this.messageServe.warning('当前歌曲无音频可播放',{
+          this.batchActionServe.insertSong(list[0], isPlay)
+        } else {
+          this.messageServe.warning('当前歌曲无音频可播放', {
             nzDuration: 1500,
           })
         }
@@ -97,12 +100,12 @@ export class SheetInfoComponent implements OnInit,OnDestroy {
   }
 
   private listenCurrent() {
-    this.store$.pipe(select(selectPlayer),select(getCurrentSong),takeUntil(this.destroy$))
+    this.store$.pipe(select(selectPlayer), select(getCurrentSong), takeUntil(this.destroy$))
       .subscribe(song => {
         this.currentSong = song
         if (song) {
-          this.currentIndex = findIndex(this.sheetInfo.tracks,song)
-        }else {
+          this.currentIndex = findIndex(this.sheetInfo.tracks, song)
+        } else {
           this.currentIndex = -1
         }
       })
@@ -113,15 +116,36 @@ export class SheetInfoComponent implements OnInit,OnDestroy {
     this.destroy$.complete()
   }
 
-  onAddSongs(songs: Song[],isPlay = false) {
+  onAddSongs(songs: Song[], isPlay = false) {
     this.songServe.getSongList(songs).subscribe(list => {
       if (list.length) {
         if (isPlay) {
-          this.batchActionServe.selectPlayList({list,index:0})
-        }else {
+          this.batchActionServe.selectPlayList({list, index: 0})
+        } else {
           this.batchActionServe.insertSongs(list)
         }
       }
     })
   }
+
+  //收藏歌曲
+  onLikeSong(id: string) {
+    this.batchActionServe.likeSong(id)
+  }
+
+  onLikeSheet(id: string, t?: 1 | 2) {
+    this.subscribed ? t = 2 : t = 1;
+    this.memberServe.likeSheet(id,t).subscribe(() => {
+      if (this.subscribed) {
+        this.messageServe.success('取消收藏成功')
+        this.subscribed = false
+      }else {
+        this.messageServe.success('收藏成功')
+        this.subscribed = true
+      }
+    }, error => {
+      this.messageServe.error(error.msg || (this.sheetInfo.subscribed ? '取消收藏失败' : '收藏失败'))
+    })
+  }
+
 }

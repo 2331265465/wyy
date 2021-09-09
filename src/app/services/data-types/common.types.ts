@@ -35,6 +35,7 @@ export type SongSheet = {
   subscribed: boolean
   userId: number
   tracks: Song[]
+  trackCount:number
 }
 
 //播放地址
@@ -92,6 +93,7 @@ export type SignIn = {
 export interface SampleBack extends AnyJson{
   code: number
 }
+
 export interface AnyJson  {
   [key: string]: any
 }
