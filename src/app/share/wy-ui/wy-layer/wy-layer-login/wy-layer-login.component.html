@@ -1,6 +1,6 @@
 <div class="login-phone modal-content">
   <div class="modal-wrap">
-    <form nz-form [formGroup]="formModal" class="login-form" (ngSubmit)="onSubmit()">
+    <form nz-form [formGroup]="formModel" class="login-form" (ngSubmit)="onSubmit()">
       <nz-form-item>
         <nz-form-control nzHasFeedback nzErrorTip="请输入正确的手机号">
           <nz-input-group nzPrefixIcon="mobile">
@@ -24,7 +24,7 @@
              <span>记住密码</span>
            </label>
          </div>
-          <button nz-button class="login-form-button" [disabled]="!formModal.valid" nzType="primary" nzBlock>登陆</button>
+          <button nz-button class="login-form-button" [disabled]="!formModel.valid" nzType="primary" nzBlock>登陆</button>
         </nz-form-control>
       </nz-form-item>
     </form>

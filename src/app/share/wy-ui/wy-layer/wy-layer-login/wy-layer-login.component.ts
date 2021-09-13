@@ -27,11 +27,12 @@ export class WyLayerLoginComponent implements OnInit, OnChanges {
   @Output() onChangeModalType = new EventEmitter<string | void>()
   @Output() onLogin = new EventEmitter<LoginParams>()
   @Input() wyRememberLogin: LoginParams
+  @Input() visible = false
 
-  formModal: FormGroup
+  formModel: FormGroup
 
   constructor(private fb: FormBuilder) {
-    this.formModal = this.fb.group({
+    this.formModel = this.fb.group({
       phone: ['', [
         Validators.required,
         Validators.pattern(/^1\d{10}$/)
@@ -48,7 +49,7 @@ export class WyLayerLoginComponent implements OnInit, OnChanges {
   }
 
   onSubmit() {
-    const modal = this.formModal
+    const modal = this.formModel
     if (modal.valid) {
       this.onLogin.emit(modal.value)
     }
@@ -56,6 +57,7 @@ export class WyLayerLoginComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     const userLoginParams = changes['wyRememberLogin']
+    const visible = changes['visible']
     if (changes['wyRememberLogin']) {
       let phone = ''
       let password = ''
@@ -68,10 +70,13 @@ export class WyLayerLoginComponent implements OnInit, OnChanges {
         this.setModal({phone, password, remember})
       }
     }
+    if (visible && !visible.firstChange) {
+      this.formModel.markAllAsTouched()
+    }
   }
 
   private setModal({phone, password, remember}: LoginParams) {
-    this.formModal = this.fb.group({
+    this.formModel = this.fb.group({
       phone: [phone, [
         Validators.required,
         Validators.pattern(/^1\d{10}$/)

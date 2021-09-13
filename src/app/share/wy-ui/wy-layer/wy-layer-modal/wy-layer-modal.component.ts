@@ -123,10 +123,10 @@ export class WyLayerModalComponent implements OnInit, AfterViewInit,OnChanges {
   }
 
   private getHideDomeSize(dom: HTMLElement) {
-    return {
-      w: dom.offsetWidth,
-      h: dom.offsetHeight
-    }
+      return {
+        w: dom.offsetWidth,
+        h: dom.offsetHeight
+      }
   }
 
   listenerResizeToCenter() {
@@ -136,11 +136,11 @@ export class WyLayerModalComponent implements OnInit, AfterViewInit,OnChanges {
   }
 
   private keepCenter(modal: HTMLElement, size: { w: number, h: number }) {
-    const left = (this.getWindowSize().w - size.w) / 2
-    const top = (this.getWindowSize().h - size.h) / 2
-    modal.style.left = left + 'px'
-    modal.style.top = top + 'px'
-    this.resizeHandler = this.rd2.listen('window', 'resize', () => this.keepCenter(modal, size))
+      const left = (this.getWindowSize().w - size.w) / 2
+      const top = (this.getWindowSize().h - size.h) / 2
+      modal.style.left = left + 'px'
+      modal.style.top = top + 'px'
+      this.resizeHandler = this.rd2.listen('window', 'resize', () => this.keepCenter(modal, size))
   }
 
   private getWindowSize() {
