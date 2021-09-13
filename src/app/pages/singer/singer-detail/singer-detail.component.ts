@@ -11,6 +11,7 @@ import {getCurrentSong, selectPlayer} from "../../../store/selectors/player.sele
 import {findIndex} from "../../../utils/array";
 import {Subject} from "rxjs";
 import {SetShareInfo} from "../../../store/actions/member.actions";
+import {MemberService} from "../../../services/member.service";
 
 @Component({
   selector: 'app-singer-detail',
@@ -23,13 +24,15 @@ export class SingerDetailComponent implements OnInit, OnDestroy {
   currentSong: Song
   destroy$ = new Subject<void>()
   simiSingers: Singer[]
+  hasLiked = false
 
   constructor(
     private route: ActivatedRoute,
     private store$: Store<AppStoreModule>,
     private songServe: SongService,
     private batchActionServe: BatchActionsService,
-    private messageServe: NzMessageService
+    private messageServe: NzMessageService,
+    private memberServe: MemberService
   ) {
     this.route.data.pipe(map(res => res.singerDetail)).subscribe(([singerDetail, singer]) => {
       this.singerDetail = singerDetail
@@ -88,9 +91,9 @@ export class SingerDetailComponent implements OnInit, OnDestroy {
     this.batchActionServe.likeSong(id)
   }
 
-  onShareSong(resource: Song,type = 'song') {
-    const txt = this.makeTxt('歌曲',resource.name,resource.ar)
-    this.store$.dispatch(SetShareInfo({info: {id: resource.id.toString(), type, txt} }))
+  onShareSong(resource: Song, type = 'song') {
+    const txt = this.makeTxt('歌曲', resource.name, resource.ar)
+    this.store$.dispatch(SetShareInfo({info: {id: resource.id.toString(), type, txt}}))
   }
 
   makeTxt(type: string, name: string, makeBy: Singer[]): string {
@@ -98,4 +101,29 @@ export class SingerDetailComponent implements OnInit, OnDestroy {
     return `${type}:${name} -- ${makeByStr}`
   }
 
+  //批量收藏
+  onLikeSongs(songs: Song[]) {
+    const ids = songs.map(item => item.id).join(',')
+    this.onLikeSong(ids)
+  }
+
+  //收藏歌手
+  onLikeSinger(id: string) {
+    let typeInfo = {
+      type: 1,
+      msg: '收藏'
+    }
+    if (this.hasLiked) {
+      typeInfo = {
+        type: 2,
+        msg: '取消收藏'
+      }
+    }
+    this.memberServe.likeSinger(id, typeInfo.type).subscribe(() => {
+      this.hasLiked = !this.hasLiked
+      this.messageServe.success(typeInfo.msg + '成功')
+    }, error => {
+      this.messageServe.error(error.msg || typeInfo.msg + '失败')
+    })
+  }
 }
