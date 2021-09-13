@@ -69,23 +69,24 @@
 <app-wy-layer-modal
   [visible]="visible"
   [currentModalType]="currentModalType"
-  (onLoadMySheets)="onLoadMySheets()"
+  (onLoadMySheets)="onLoadMySheets()">
 
->
   <app-wy-layer-login
     (onChangeModalType)="changeModalType($event)"
     name="login"
     (onLogin)="login($event)"
-    [wyRememberLogin]="wyRememberLogin"
-  ></app-wy-layer-login>
+    [wyRememberLogin]="wyRememberLogin">
+  </app-wy-layer-login>
+
   <app-wy-layer-like
     [visible]="visible"
     (onCreateSheet)="onCreateSheet($event)"
     (onLikeSong)="onLikeSong($event)"
     [mySheets]="mySheets"
     [likeId]="likeId"
-    name="like"
-  >
+    name="like">
   </app-wy-layer-like>
+
+  <app-wy-layer-share name="share" (onShare)="onShare($event)" [shareInfo]="shareInfo" (onCancel)="closeModal()"></app-wy-layer-share>
   <app-wy-layer-default (onChangeModalType)="changeModalType($event)"></app-wy-layer-default>
 </app-wy-layer-modal>

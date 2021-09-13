@@ -23,8 +23,8 @@
           <i class="col arrow"></i>
           <div class="col name ellipsis">{{item.name}}</div>
           <div class="col icons">
-            <i class="ico like" title="收藏"></i>
-            <i class="ico share" title="分享"></i>
+            <i class="ico like" title="收藏" (click)="likeSong($event,item.id.toString())"></i>
+            <i class="ico share" title="分享" (click)="shareSong($event,item)"></i>
             <i class="ico trush" (click)="onDeleteSong.emit(item)" data-act="delete" title="删除"></i>
           </div>
           <div class="singers clearfix ellipsis">
@@ -33,8 +33,10 @@
               <span [hidden]="isLast">/</span>
             </div>
           </div>
-          <div class="col duration">{{(item.dt / 1000) | formatTime}}</div>
-          <div class="col link" (click)="toInfo($event,['/songInfo',item.id])"></div>
+          <div class="relation">
+            <div class="col duration">{{(item.dt / 1000) | formatTime}}</div>
+            <div class="col link" (click)="toInfo($event,['/songInfo',item.id])"></div>
+          </div>
         </li>
       </ul>
     </app-wy-scroll>

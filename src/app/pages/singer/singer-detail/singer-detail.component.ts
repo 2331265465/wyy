@@ -10,16 +10,17 @@ import {NzMessageService} from "ng-zorro-antd/message";
 import {getCurrentSong, selectPlayer} from "../../../store/selectors/player.selector";
 import {findIndex} from "../../../utils/array";
 import {Subject} from "rxjs";
+import {SetShareInfo} from "../../../store/actions/member.actions";
 
 @Component({
   selector: 'app-singer-detail',
   templateUrl: './singer-detail.component.html',
   styleUrls: ['./singer-detail.component.less']
 })
-export class SingerDetailComponent implements OnInit,OnDestroy {
+export class SingerDetailComponent implements OnInit, OnDestroy {
   singerDetail: SingerDetail
   currentIndex = -1
-  currentSong:Song
+  currentSong: Song
   destroy$ = new Subject<void>()
   simiSingers: Singer[]
 
@@ -30,7 +31,7 @@ export class SingerDetailComponent implements OnInit,OnDestroy {
     private batchActionServe: BatchActionsService,
     private messageServe: NzMessageService
   ) {
-    this.route.data.pipe(map(res => res.singerDetail)).subscribe(([singerDetail,singer]) => {
+    this.route.data.pipe(map(res => res.singerDetail)).subscribe(([singerDetail, singer]) => {
       this.singerDetail = singerDetail
       this.simiSingers = singer
       this.listenCurrent()
@@ -41,12 +42,12 @@ export class SingerDetailComponent implements OnInit,OnDestroy {
   }
 
   private listenCurrent() {
-    this.store$.pipe(select(selectPlayer),select(getCurrentSong),takeUntil(this.destroy$))
+    this.store$.pipe(select(selectPlayer), select(getCurrentSong), takeUntil(this.destroy$))
       .subscribe(song => {
         this.currentSong = song
         if (song) {
-          this.currentIndex = findIndex(this.singerDetail.hotSongs,song)
-        }else {
+          this.currentIndex = findIndex(this.singerDetail.hotSongs, song)
+        } else {
           this.currentIndex = -1
         }
       })
@@ -57,8 +58,8 @@ export class SingerDetailComponent implements OnInit,OnDestroy {
       if (list.length) {
         if (isPlay) {
           this.batchActionServe.selectPlayList({list, index: 0})
-        }else {
-         this.batchActionServe.insertSongs(list)
+        } else {
+          this.batchActionServe.insertSongs(list)
         }
       }
     })
@@ -69,17 +70,32 @@ export class SingerDetailComponent implements OnInit,OnDestroy {
     this.destroy$.complete()
   }
 
-  onAddSong(song: Song, isPlay= false) {
+  onAddSong(song: Song, isPlay = false) {
     if (!this.currentSong || this.currentSong.id !== song.id) {
       this.songServe.getSongList(song).subscribe(list => {
         if (list.length) {
-          this.batchActionServe.insertSong(list[0],isPlay)
-        }else {
-          this.messageServe.warning('当前歌曲无音频可播放',{
+          this.batchActionServe.insertSong(list[0], isPlay)
+        } else {
+          this.messageServe.warning('当前歌曲无音频可播放', {
             nzDuration: 1500,
           })
         }
       })
     }
   }
+
+  onLikeSong(id: string) {
+    this.batchActionServe.likeSong(id)
+  }
+
+  onShareSong(resource: Song,type = 'song') {
+    const txt = this.makeTxt('歌曲',resource.name,resource.ar)
+    this.store$.dispatch(SetShareInfo({info: {id: resource.id.toString(), type, txt} }))
+  }
+
+  makeTxt(type: string, name: string, makeBy: Singer[]): string {
+    const makeByStr = makeBy.map(item => item.name).join('/')
+    return `${type}:${name} -- ${makeByStr}`
+  }
+
 }

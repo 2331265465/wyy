@@ -15,6 +15,7 @@ import {WyScrollComponent} from "../wy-scroll/wy-scroll.component";
 import {SongService} from "../../../../services/song.service";
 import {BaseLyricLine, WyLyric} from "./wy-lyric";
 import {timer} from "rxjs";
+import {BatchActionsService} from "../../../../store/batch-actions.service";
 
 @Component({
   selector: 'app-wy-player-panel',
@@ -31,12 +32,14 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
   @Output() onChangeSong = new EventEmitter<Song>()
   @Output() onDeleteSong = new EventEmitter<Song>()
   @Output() onClearSong = new EventEmitter<void>()
-  @Output() onToInfo = new EventEmitter<[string,number]>()
+  @Output() onToInfo = new EventEmitter<[string, number]>()
+  @Output() onLikeSong = new EventEmitter<string>()
+  @Output() onShareSong = new EventEmitter<Song>()
 
   @ViewChildren(WyScrollComponent) private wyScroll: QueryList<WyScrollComponent>
 
   scrollY = 0
-  currentIndex:number
+  currentIndex: number
   currentLyric: BaseLyricLine[] = []
   lyric: WyLyric
   currentLineNum: number
@@ -79,21 +82,20 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
       if (!changes['show'].firstChange && this.show) {
         this.wyScroll.first.refreshScroll()
         this.wyScroll.last.refreshScroll()
-          timer(80).subscribe(() => {
-            if (this.currentSong) {
-              console.log('scrollToCurrent')
-              this.scrollToCurrent(0)
-            }
-            if (this.lyricRefs) {
-              this.scrollToCurrentLyric(0)
-            }
-          })
+        timer(80).subscribe(() => {
+          if (this.currentSong) {
+            this.scrollToCurrent(0)
+          }
+          if (this.lyricRefs) {
+            this.scrollToCurrentLyric(0)
+          }
+        })
 
       }
     }
   }
 
-  toInfo(e:Event,path:[string,number]) {
+  toInfo(e: Event, path: [string, number]) {
     e.stopPropagation()
     this.onToInfo.emit(path)
   }
@@ -145,7 +147,7 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
       if (this.lyricRefs.length) {
         this.currentLineNum = lineNum
         if (lineNum > this.startLine) {
-         this.scrollToCurrentLyric()
+          this.scrollToCurrentLyric()
         } else {
           this.wyScroll.last.scrollTo(0, 0)
         }
@@ -167,6 +169,16 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
     if (this.lyric) {
       this.lyric.seek(time)
     }
+  }
+
+  likeSong(e: Event, id: string) {
+    e.stopPropagation()
+    this.onLikeSong.emit(id)
+  }
+
+  shareSong(e: Event, item: Song) {
+    e.stopPropagation()
+    this.onShareSong.emit(item)
   }
 }
 

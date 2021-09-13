@@ -5,13 +5,12 @@ import {WyPlayerModule} from "./wy-player/wy-player.module";
 import {WySearchModule} from "./wy-search/wy-search.module";
 import {WyLayerModule} from "./wy-layer/wy-layer.module";
 
-
 @NgModule({
   declarations: [SingleSheetComponent, PlayCountPipe],
   imports: [
     WyPlayerModule,
     WySearchModule,
-    WyLayerModule
+    WyLayerModule,
   ],
   exports: [
     SingleSheetComponent,

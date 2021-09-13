@@ -1,20 +1,19 @@
-import {Component, Inject, Input} from '@angular/core';
+import {Component, Inject} from '@angular/core';
 import {SearchService} from "./services/search.service";
 import {SearchResult, SongSheet} from "./services/data-types/common.types";
 import {isObject} from "./utils/tools";
-import {ModalTypes} from "./store/reducers/member.reducer";
+import {ModalTypes, ShareInfo} from "./store/reducers/member.reducer";
 import {select, Store} from "@ngrx/store";
 import {AppStoreModule} from "./store/store.module";
-import {SetLikeId, SetModalType, SetModalVisible, SetUserId} from "./store/actions/member.actions";
+import {SetModalType, SetModalVisible, SetUserId} from "./store/actions/member.actions";
 import {BatchActionsService} from "./store/batch-actions.service";
 import {LoginParams} from "./share/wy-ui/wy-layer/wy-layer-login/wy-layer-login.component";
-import {LikeSongPid, MemberService} from "./services/member.service";
+import {LikeSongPid, MemberService, ShareParams} from "./services/member.service";
 import {User} from "./services/data-types/member.type";
 import {NzMessageService} from "ng-zorro-antd/message";
 import {WINDOW} from "./services/services.module";
 import {codeJson} from "./utils/base64";
-import {getLikeId, getModalType, getModalVisible, selectMember} from "./store/selectors/member.selector";
-import {FormGroup} from "@angular/forms";
+import {getLikeId, getModalType, getModalVisible, getShareInfo, selectMember} from "./store/selectors/member.selector";
 
 
 @Component({
@@ -38,10 +37,11 @@ export class AppComponent {
   searchResult: SearchResult
   user: User
   wyRememberLogin: LoginParams
-  mySheets: SongSheet[];
+  mySheets: SongSheet[]
   likeId: string;
   visible = false //弹窗提示
   currentModalType = ModalTypes.Default //弹窗类型
+  shareInfo: ShareInfo
 
   constructor(
     @Inject(WINDOW) private win: Window,
@@ -78,6 +78,10 @@ export class AppComponent {
         type: getModalType,
         callback: type => this.watchModalType(type)
       },
+      {
+        type: getShareInfo,
+        callback: info => this.watchShareInfo(info)
+      },
     ]
     stateArr.forEach((item: { type: any, callback: () => void }) => {
       appStore$.pipe(select(item.type)).subscribe(item.callback)
@@ -102,6 +106,13 @@ export class AppComponent {
   private watchModalVisible(visible: boolean) {
     if (this.visible !== visible) {
       this.visible = visible
+    }
+  }
+
+  private watchShareInfo(info: ShareInfo) {
+    if (info) {
+      this.shareInfo = info
+      this.openModal(ModalTypes.Share)
     }
   }
 
@@ -135,19 +146,34 @@ export class AppComponent {
 
   //打开弹窗
   openModal(type: string) {
-    if (type === 'register') {
-      this.batchActionsServe.controlModal(true, ModalTypes.Register)
+    switch (type.toLowerCase()) {
+      case 'loginByPhone':
+        this.batchActionsServe.controlModal(true, ModalTypes.LoginByPhone)
+        break
+      case 'register':
+        this.batchActionsServe.controlModal(true, ModalTypes.Register)
+        break
+      case 'like':
+        this.batchActionsServe.controlModal(true, ModalTypes.Like)
+        break
+      case 'share':
+        this.batchActionsServe.controlModal(true, ModalTypes.Share)
+        break
+      default:
+        this.batchActionsServe.controlModal(true, ModalTypes.Default)
+        break
     }
-    if (type === 'loginByPhone') {
-      this.batchActionsServe.controlModal(true, ModalTypes.LoginByPhone);
-    }
+  }
+
+  closeModal() {
+    this.batchActionsServe.controlModal(false)
   }
 
   login(params: LoginParams) {
     this.memberServe.login(params).subscribe(user => {
       if (user.code !== 200) return;
       this.user = user
-      this.batchActionsServe.controlModal(false)
+      this.closeModal()
       this.alertMessage('success', '登陆成功')
       const userId = this.user.profile.userId
       this.win.localStorage.setItem('wyUserId', userId.toString())
@@ -191,8 +217,8 @@ export class AppComponent {
 
   //收藏歌曲
   onLikeSong(args: LikeSongPid) {
-    this.memberServe.likeSong(args).subscribe(res => {
-      this.batchActionsServe.controlModal(false)
+    this.memberServe.likeSong(args).subscribe(() => {
+      this.closeModal()
       this.alertMessage('success', '收藏成功')
     }, error => {
       this.alertMessage('error', error.msg || '收藏失败')
@@ -201,9 +227,19 @@ export class AppComponent {
 
   onCreateSheet(sheet: string) {
     this.memberServe.createSheet(sheet).subscribe(pid => {
-      this.onLikeSong({pid,tracks:this.likeId})
+      this.onLikeSong({pid, tracks: this.likeId})
     }, error => {
       this.alertMessage('error', error.msg || '新建失败')
+    })
+  }
+
+  //分享
+  onShare(arg: ShareParams) {
+    this.memberServe.shareResource(arg).subscribe(() => {
+      this.alertMessage('success', '分享成功')
+      this.closeModal()
+    }, error => {
+      this.alertMessage('error', error.msg || '分享失败')
     })
   }
 }

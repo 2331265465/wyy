@@ -10,7 +10,7 @@ import {
   getSongList,
   selectPlayer
 } from "../../../store/selectors/player.selector";
-import {Song} from "../../../services/data-types/common.types";
+import {Singer, Song, SongSheet} from "../../../services/data-types/common.types";
 import {PlayMode} from "./player-type";
 import {SetCurrentAction, SetCurrentIndex, SetPlayList, SetPlayMode} from "../../../store/actions/player.actions";
 import {DOCUMENT} from "@angular/common";
@@ -22,6 +22,7 @@ import {Router} from "@angular/router";
 import {animate, state, style, transition, trigger, AnimationEvent} from "@angular/animations";
 import {CurrentActions} from "../../../store/reducers/player.reducer";
 import {timer} from "rxjs";
+import {SetShareInfo} from "../../../store/actions/member.actions";
 
 const modeTypes: PlayMode[] = [
   {type: 'loop', label: '循环'},
@@ -344,10 +345,25 @@ export class WyPlayerComponent implements OnInit {
       this.showPlayer = type
     }
   }
+
   //播放错误
   onError() {
     this.playing = false
     this.bufferPercent = 0
     this.duration = 0
+  }
+
+  onLikeSong(id: string) {
+    this.batchActionsServe.likeSong(id)
+  }
+
+  onShareSong(resource: Song,type = 'song') {
+    const txt = this.makeTxt('歌曲',resource.name,resource.ar)
+    this.store$.dispatch(SetShareInfo({info: {id: resource.id.toString(), type, txt} }))
+  }
+
+  makeTxt(type: string, name: string, makeBy: Singer[]): string {
+    const makeByStr = makeBy.map(item => item.name).join('/')
+    return `${type}:${name} -- ${makeByStr}`
   }
 }

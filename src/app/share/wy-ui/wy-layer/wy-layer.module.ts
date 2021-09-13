@@ -14,9 +14,10 @@ import {NzListModule} from "ng-zorro-antd/list";
 import {NzSpinModule} from "ng-zorro-antd/spin";
 import {NzIconModule} from "ng-zorro-antd/icon";
 import {WyLayerLikeComponent} from './wy-layer-like/wy-layer-like.component';
+import {WyLayerShareComponent} from "./wy-layer-share/wy-layer-share.component";
 
 @NgModule({
-  declarations: [WyLayerModalComponent, WyLayerDefaultComponent, WyLayerLoginComponent, WyLayerLikeComponent],
+  declarations: [WyLayerModalComponent, WyLayerDefaultComponent, WyLayerLoginComponent, WyLayerLikeComponent, WyLayerShareComponent],
   imports: [
     CommonModule,
     NzButtonModule,
@@ -29,9 +30,11 @@ import {WyLayerLikeComponent} from './wy-layer-like/wy-layer-like.component';
     NzAlertModule,
     NzListModule,
     NzSpinModule,
-    NzIconModule
+    NzIconModule,
+    NzInputModule,
+    NzAlertModule
   ],
-  exports: [WyLayerModalComponent, WyLayerDefaultComponent, WyLayerLoginComponent, WyLayerLikeComponent]
+  exports: [WyLayerModalComponent, WyLayerDefaultComponent, WyLayerLoginComponent, WyLayerLikeComponent, WyLayerShareComponent]
 })
 export class WyLayerModule {
 }

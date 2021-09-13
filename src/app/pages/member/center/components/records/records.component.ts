@@ -8,7 +8,8 @@ import {
 } from '@angular/core';
 import {RecordVal} from "../../../../../services/data-types/member.type";
 import {RecordType} from "../../../../../services/member.service";
-import {Song} from "../../../../../services/data-types/common.types";
+import {Singer, Song} from "../../../../../services/data-types/common.types";
+import {SetShareInfo} from "../../../../../store/actions/member.actions";
 
 @Component({
   selector: 'app-records',
@@ -23,6 +24,8 @@ export class RecordsComponent implements OnInit {
   @Input() currentIndex = -1
   @Output() onChangeType = new EventEmitter<RecordType>()
   @Output() onAddSong = new EventEmitter<[Song, boolean]>()
+  @Output() onLikeSong = new EventEmitter<string>()
+  @Output() onShareSong = new EventEmitter<Song>()
 
   constructor() {
   }

@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {map, takeUntil} from "rxjs/operators";
-import {Song, SongSheet} from "../../services/data-types/common.types";
+import {Singer, Song, SongSheet} from "../../services/data-types/common.types";
 import {select, Store} from "@ngrx/store";
 import {AppStoreModule} from "../../store/store.module";
 import {Subject} from "rxjs";
@@ -11,6 +11,7 @@ import {BatchActionsService} from "../../store/batch-actions.service";
 import {NzMessageService} from "ng-zorro-antd/message";
 import {findIndex} from "../../utils/array";
 import {MemberService} from "../../services/member.service";
+import {SetShareInfo} from "../../store/actions/member.actions";
 
 @Component({
   selector: 'app-sheet-info',
@@ -135,17 +136,38 @@ export class SheetInfoComponent implements OnInit, OnDestroy {
 
   onLikeSheet(id: string, t?: 1 | 2) {
     this.subscribed ? t = 2 : t = 1;
-    this.memberServe.likeSheet(id,t).subscribe(() => {
+    this.memberServe.likeSheet(id, t).subscribe(() => {
       if (this.subscribed) {
         this.messageServe.success('取消收藏成功')
         this.subscribed = false
-      }else {
+      } else {
         this.messageServe.success('收藏成功')
         this.subscribed = true
       }
     }, error => {
       this.messageServe.error(error.msg || (this.sheetInfo.subscribed ? '取消收藏失败' : '收藏失败'))
     })
+  }
+
+  //分享
+  shareResource(resource: Song | SongSheet, type = 'song') {
+    let txt = ''
+    if (type === 'playlist') {
+      txt = this.makeTxt('歌单',resource.name,(<SongSheet>resource).creator.nickname)
+    } else {
+      txt = this.makeTxt('歌曲',resource.name,(<Song>resource).ar)
+    }
+    this.store$.dispatch(SetShareInfo({info: {id: resource.id.toString(), type, txt} }))
+  }
+
+  makeTxt(type: string, name: string, makeBy: string | Singer[]): string {
+    let makeByStr = ''
+    if (Array.isArray(makeBy)) {
+      makeByStr = makeBy.map(item => item.name).join('/')
+    }else {
+      makeByStr = makeBy
+    }
+    return `${type}:${name} -- ${makeByStr}`
   }
 
 }

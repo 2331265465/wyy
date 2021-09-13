@@ -9,6 +9,7 @@ import {CurrentActions, PlayState} from "./reducers/player.reducer";
 import {selectMember} from "./selectors/member.selector";
 import {MemberState, ModalTypes} from "./reducers/member.reducer";
 import {SetLikeId, SetModalType, SetModalVisible} from "./actions/member.actions";
+import {timer} from "rxjs";
 
 @Injectable({
   providedIn: AppStoreModule

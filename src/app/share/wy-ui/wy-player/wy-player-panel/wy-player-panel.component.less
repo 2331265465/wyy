@@ -132,6 +132,7 @@
       color: @wy-text-prev-color;
       ul{
         li{
+          display: flex;
           overflow: hidden;
           padding: 10px 0;
           .col{
@@ -145,26 +146,33 @@
             visibility: hidden;
           }
           .name{
-            width: 280px;
+            width: 200px;
           }
           .singers{
-            width: 70px;
+            width: 100px;
             margin: 0 10px;
-            float: left;
+            display: flex;
             height: 20px;
             .singer-item{
-              float: left;
+              span {
+                margin: 0 2px;
+              }
             }
           }
-          .duration{
-            margin: 0 10px;
-          }
-          .link{
-            .icon('../images/playlist.png', 14px, 16px);
-            background-position: -80px 0;
-            margin-top: 4px;
-            &:hover{
-              background-position: -80px -20px;
+          .relation {
+            display: flex;
+            justify-self: end;
+            justify-content: space-between;
+            .duration{
+              margin: 0 10px;
+            }
+            .link{
+              .icon('../images/playlist.png', 14px, 16px);
+              background-position: -80px 0;
+              margin-top: 4px;
+              &:hover{
+                background-position: -80px -20px;
+              }
             }
           }
           .icons{

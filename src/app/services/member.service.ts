@@ -18,6 +18,12 @@ export type LikeSongPid = {
   tracks: string
 }
 
+export type ShareParams = {
+  id: string
+  msg: string
+  type: string
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -91,6 +97,13 @@ export class MemberService {
   likeSheet(id: string, t: 1 | 2): Observable<number> {
     const params = new HttpParams({fromString: qs.stringify({id, t})})
     return this.http.get(this.uri + 'playlist/subscribe', {params})
+      .pipe(map((res: SampleBack) => res.code))
+  }
+
+  //分享
+  shareResource({id, msg, type}: ShareParams): Observable<number> {
+    const params = new HttpParams({fromString: qs.stringify({id, msg, type})})
+    return this.http.get(this.uri + 'share/resource', {params})
       .pipe(map((res: SampleBack) => res.code))
   }
 }

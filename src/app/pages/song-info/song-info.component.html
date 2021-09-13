@@ -35,8 +35,8 @@
               </button>
               <button class="add" nz-button nzType="primary" (click)="onAddSong(song)">+</button>
             </nz-button-group>
-            <button class="btn like" nz-button><span>收藏</span></button>
-            <button class="btn share" nz-button><span>分享</span></button>
+            <button class="btn like" nz-button (click)="likeSong(song.id.toString())"><span>收藏</span></button>
+            <button class="btn share" nz-button (click)="shareSong(song)"><span>分享</span></button>
           </div>
           <div class="lyric-info f-brk">
             <div class="lyric-content" [class.expand]="controlDesc.isExpand">
