@@ -9,7 +9,7 @@
         <div class="cover-img">
           <img [src]="singerDetail.artist.picUrl" [alt]="singerDetail.artist.name" class="full-height">
         </div>
-        <button class="btn btn-like" [class.btn-like]="hasLiked" (click)="onLikeSinger(singerDetail.artist.id.toString())"></button>
+        <button class="btn btn-like" [class.btn-liked]="hasLiked" (click)="onLikeSinger(singerDetail.artist.id.toString())"></button>
       </div>
 
       <div class="top-50">
