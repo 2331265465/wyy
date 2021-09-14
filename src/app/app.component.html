@@ -79,6 +79,8 @@
     [wyRememberLogin]="wyRememberLogin">
   </app-wy-layer-login>
 
+  <app-wy-layer-register name="register" [visible]="visible" (onChangeModalType)="changeModalType($event)"></app-wy-layer-register>
+
   <app-wy-layer-like
     [visible]="visible"
     (onCreateSheet)="onCreateSheet($event)"

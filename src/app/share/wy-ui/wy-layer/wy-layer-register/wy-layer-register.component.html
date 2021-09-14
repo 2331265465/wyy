@@ -1,0 +1,36 @@
+<div class="register modal-content">
+  <div class="modal-wrap" *ngIf="!showCode else code">
+    <form nz-form nzLayout="vertical" [formGroup]="formModel" (ngSubmit)="onSubmit()">
+      <nz-form-item>
+        <nz-form-label>手机号</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="请填写正确的手机号">
+          <nz-input-group nzPrefixIcon="mobile">
+            <input type="tel" formControlName="phone" nz-input placeholder="请输入手机号">
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>密码</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="请输入正确的密码">
+          <nz-input-group nzPrefixIcon="lock">
+            <input type="password" formControlName="password" nz-input placeholder="请输入密码">
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-control>
+          <button nzBlock nz-button nzType="primary" [disabled]="!formModel.valid">下一步</button>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </div>
+ <ng-template #code>
+   <div class="modal-wrap">
+     验证码
+     {{timing}}
+     <app-wy-check-code [phone]="this.formModel.value.phone"></app-wy-check-code>
+   </div>
+ </ng-template>
+</div>
+
+<div class="m-footer clearfix"><a (click)="changeType()">&lt;其它登陆方式</a></div>

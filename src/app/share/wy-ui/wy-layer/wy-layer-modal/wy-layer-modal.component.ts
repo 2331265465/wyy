@@ -43,6 +43,14 @@ export class WyLayerModalComponent implements OnInit, AfterViewInit,OnChanges {
   private resizeHandler: () => void
   showModal = 'hide'
 
+  modalTitle = {
+    Register:'注册',
+    LoginByPhone:'登陆',
+    Share:'分享',
+    Like:'收藏',
+    Default:''
+  }
+
   @Input() visible = false //弹窗提示
   @Input() currentModalType = ModalTypes.Default //弹窗类型
   @Output() onLoadMySheets = new EventEmitter<void>()
