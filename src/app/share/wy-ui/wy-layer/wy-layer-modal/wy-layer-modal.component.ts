@@ -52,6 +52,7 @@ export class WyLayerModalComponent implements OnInit, AfterViewInit,OnChanges {
   }
 
   @Input() visible = false //弹窗提示
+  @Input() showSpin = false
   @Input() currentModalType = ModalTypes.Default //弹窗类型
   @Output() onLoadMySheets = new EventEmitter<void>()
   @ViewChild('modalContainer') private modalContainer: ElementRef

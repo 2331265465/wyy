@@ -7,7 +7,7 @@ import {RecordResolver} from "./record-detail/record.resolver";
 
 const routes: Routes = [
   {
-    path:'member/:uid',
+    path:'',
     component:CenterComponent,
     data:{title:'个人中心'},
     resolve:{user:CenterResolver}

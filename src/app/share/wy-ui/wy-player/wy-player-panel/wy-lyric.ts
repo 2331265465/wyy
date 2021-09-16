@@ -3,7 +3,7 @@ import {from, Subject, Subscription, timer, zip} from "rxjs";
 import {skip} from "rxjs/operators";
 
 //[00:00.000] [00:00.00] [00:00]
-const timeExp = /\[(\d{2}):(\d{2})\.(\d{2,3})?]/
+const timeExp = /\[(\d{1,2}):(\d{2})\.(\d{2,3})?]/
 
 export interface BaseLyricLine {
   txt: string

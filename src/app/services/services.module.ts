@@ -1,19 +1,19 @@
 import {InjectionToken, NgModule, PLATFORM_ID} from '@angular/core';
-import {isPlatformBrowser} from "@angular/common";
-import {httpInterceptorProviders} from "./http-interceptors";
+import {isPlatformBrowser} from '@angular/common';
+import {httpInterceptorProviders} from './http-interceptors';
 
-export const API_CONFIG = new InjectionToken('ApiConfigToken')
-export const WINDOW = new InjectionToken('WindowToken')
+export const API_CONFIG = new InjectionToken('ApiConfigToken');
+export const WINDOW = new InjectionToken('WindowToken');
 
 @NgModule({
   declarations: [],
   imports: [],
   providers: [
-    {provide: API_CONFIG, useValue: 'http://localhost:3000/'},
+    {provide: API_CONFIG, useValue: '/api/'},
     {
       provide: WINDOW,
-      useFactory(platformId: Object): Window | Object {
-        return isPlatformBrowser(platformId) ? window : {}
+      useFactory(platformId: object): Window | object {
+        return isPlatformBrowser(platformId) ? window : {};
       },
       deps: [PLATFORM_ID]
     },

@@ -61,7 +61,7 @@ export class BatchActionsService {
   //添加歌曲
   insertSong(song: Song, isPlay) {
     const songList = this.playerState.songList.slice()
-    const playList = this.playerState.playList.slice()
+    let playList = this.playerState.playList.slice()
     let insertIndex = this.playerState.currentIndex
     const playIndex = findIndex(playList, song)
     if (playIndex > -1) {
@@ -70,9 +70,13 @@ export class BatchActionsService {
       }
     } else {
       songList.push(song)
-      playList.push(song)
       if (isPlay) {
         insertIndex = songList.length - 1
+      }
+      if (this.playerState.playMode.type === 'random') {
+        playList = shuffle(songList)
+      } else {
+        playList.push(song)
       }
       this.store$.dispatch(SetSongList({songList}))
       this.store$.dispatch(SetPlayList({playList}))
@@ -88,19 +92,20 @@ export class BatchActionsService {
 
   //添加多首歌曲
   insertSongs(songs: Song[]) {
-    const songList = this.playerState.songList.slice()
-    const playList = this.playerState.playList.slice()
-    songs.forEach(item => {
-      const pIndex = findIndex(playList, item)
-      if (pIndex === -1) {
-        songList.push(item)
-        playList.push(item)
+    let songList = this.playerState.songList.slice()
+    let playList = this.playerState.playList.slice()
+    const validSongs = songs.filter(item => findIndex(playList, item) === -1)
+    if (validSongs) {
+      songList = songList.concat(validSongs)
+      let songPlayList = validSongs.slice()
+      if (this.playerState.playMode.type === 'random') {
+        songPlayList = shuffle(songList)
       }
-    })
-    this.store$.dispatch(SetSongList({songList}))
-    this.store$.dispatch(SetPlayList({playList}))
+      playList = playList.concat(songPlayList)
+      this.store$.dispatch(SetSongList({songList}))
+      this.store$.dispatch(SetPlayList({playList}))
+    }
     this.store$.dispatch(SetCurrentAction({currentAction: CurrentActions.Add}))
-
   }
 
   //清空歌曲
@@ -112,7 +117,7 @@ export class BatchActionsService {
   }
 
   //会员弹窗显示隐藏/类型
-  controlModal(modalVisible = true,modalType = ModalTypes.Default) {
+  controlModal(modalVisible = true, modalType = ModalTypes.Default) {
     if (modalType) {
       this.store$.dispatch(SetModalType({modalType}))
     }
@@ -120,8 +125,8 @@ export class BatchActionsService {
   }
 
   //收藏歌曲
-  likeSong(id:string) {
-    this.store$.dispatch(SetModalType({modalType:ModalTypes.Like}))
+  likeSong(id: string) {
+    this.store$.dispatch(SetModalType({modalType: ModalTypes.Like}))
     this.store$.dispatch(SetLikeId({id}))
   }
 }

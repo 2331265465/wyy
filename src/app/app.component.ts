@@ -14,6 +14,18 @@ import {NzMessageService} from "ng-zorro-antd/message";
 import {WINDOW} from "./services/services.module";
 import {codeJson} from "./utils/base64";
 import {getLikeId, getModalType, getModalVisible, getShareInfo, selectMember} from "./store/selectors/member.selector";
+import {
+  ActivatedRoute,
+  ActivationEnd, ActivationStart,
+  ChildActivationEnd,
+  ChildActivationStart,
+  NavigationEnd, NavigationStart, RouteConfigLoadEnd, RouteConfigLoadStart,
+  Router, RouterEvent, Scroll
+} from "@angular/router";
+import {filter, map, mergeMap, takeUntil} from "rxjs/operators";
+import {interval, Observable} from "rxjs";
+import {Title} from "@angular/platform-browser";
+import {DOCUMENT} from "@angular/common";
 
 
 @Component({
@@ -38,11 +50,14 @@ export class AppComponent {
   user: User
   wyRememberLogin: LoginParams
   mySheets: SongSheet[]
-  likeId: string;
+  likeId: string; // 被收藏歌曲的id
   visible = false //弹窗提示
+  showSpin = false //显示loading
   currentModalType = ModalTypes.Default //弹窗类型
-  shareInfo: ShareInfo
-
+  shareInfo: ShareInfo //分享信息
+  private navEnd: Observable<RouterEvent | RouteConfigLoadStart | RouteConfigLoadEnd | ChildActivationStart | ChildActivationEnd | ActivationStart | ActivationEnd | Scroll>;
+  routeTitle = ''
+  loadPercent = 0
   constructor(
     @Inject(WINDOW) private win: Window,
     private searchServe: SearchService,
@@ -50,6 +65,9 @@ export class AppComponent {
     private memberServe: MemberService,
     private store$: Store<AppStoreModule>,
     private messageServe: NzMessageService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private titleServe:Title,
   ) {
     const userId = this.win.localStorage.getItem('wyUserId')
     if (userId) {
@@ -61,6 +79,37 @@ export class AppComponent {
       this.wyRememberLogin = JSON.parse(wyRememberLogin)
     }
     this.listenStates()
+
+    this.router.events.pipe(filter(e => e instanceof NavigationStart)).subscribe(() =>  {
+      this.loadPercent = 0
+      this.setTitle()
+    })
+
+    this.navEnd = this.router.events.pipe(filter(e => e instanceof NavigationEnd))
+    this.setLoadingBar()
+  }
+
+  private setLoadingBar() {
+    interval(100).pipe(takeUntil(this.navEnd)).subscribe(() => {
+      this.loadPercent = Math.max(95,++this.loadPercent)
+    })
+    this.navEnd.subscribe(() => this.loadPercent = 100)
+  }
+
+  private setTitle() {
+    this.navEnd.pipe(
+      map(() => this.route),
+      map((route: ActivatedRoute) => {
+        while (route.firstChild) {
+          route = route.firstChild
+        }
+        return route
+      }),
+      mergeMap(route => route.data)
+    ).subscribe(data => {
+      this.routeTitle = data['title']
+      this.titleServe.setTitle(this.routeTitle)
+    })
   }
 
   listenStates() {
@@ -114,7 +163,7 @@ export class AppComponent {
       if (this.user) {
         this.shareInfo = info
         this.openModal(ModalTypes.Share)
-      }else {
+      } else {
         this.openModal(ModalTypes.Default)
       }
     }
@@ -174,6 +223,7 @@ export class AppComponent {
   }
 
   login(params: LoginParams) {
+    this.showSpin = true
     this.memberServe.login(params).subscribe(user => {
       if (user.code !== 200) return;
       this.user = user
@@ -187,7 +237,9 @@ export class AppComponent {
         this.win.localStorage.removeItem('wyRememberLogin')
       }
       this.store$.dispatch(SetUserId({id: userId.toString()}))
+      this.showSpin = false
     }, error => {
+      this.showSpin = false
       this.messageServe.create('error', error.message || '登陆失败')
     })
   }
@@ -245,5 +297,9 @@ export class AppComponent {
     }, error => {
       this.alertMessage('error', error.msg || '分享失败')
     })
+  }
+
+  onRegister() {
+    this.alertMessage('success', '注册成功')
   }
 }
