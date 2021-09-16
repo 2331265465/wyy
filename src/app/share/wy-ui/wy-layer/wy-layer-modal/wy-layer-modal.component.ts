@@ -5,7 +5,7 @@ import {
   Component,
   ElementRef, EventEmitter,
   Inject, Input, OnChanges,
-  OnInit, Output,
+  OnInit, Output, PLATFORM_ID,
   Renderer2, SimpleChanges,
   ViewChild
 } from '@angular/core';
@@ -19,8 +19,7 @@ import {
 } from "@angular/cdk/overlay";
 import {BatchActionsService} from "../../../../store/batch-actions.service";
 import {ESCAPE} from '@angular/cdk/keycodes'
-import {DOCUMENT} from "@angular/common";
-import {WINDOW} from "../../../../services/services.module";
+import {DOCUMENT, isPlatformBrowser} from "@angular/common";
 import {animate, state, style, transition, trigger} from "@angular/animations";
 
 @Component({
@@ -56,10 +55,10 @@ export class WyLayerModalComponent implements OnInit, AfterViewInit,OnChanges {
   @Input() currentModalType = ModalTypes.Default //弹窗类型
   @Output() onLoadMySheets = new EventEmitter<void>()
   @ViewChild('modalContainer') private modalContainer: ElementRef
-
+  private readonly isBrowser:boolean
   constructor(
     @Inject(DOCUMENT) private doc: Document,
-    @Inject(WINDOW) private window: Window,
+    @Inject(PLATFORM_ID) private platformId:object,
     private overlay: Overlay,
     private elementRef: ElementRef,
     private overlayKeyboardDispatcher: OverlayKeyboardDispatcher,
@@ -69,6 +68,7 @@ export class WyLayerModalComponent implements OnInit, AfterViewInit,OnChanges {
     private overlayContainerServe: OverlayContainer
   ) {
     this.scrollStrategy = this.overlay.scrollStrategies.block()
+    this.isBrowser = isPlatformBrowser(this.platformId)
   }
 
   ngOnInit(): void {
@@ -78,9 +78,6 @@ export class WyLayerModalComponent implements OnInit, AfterViewInit,OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['visible']) {
       this.handleVisibleChange(this.visible)
-    }
-    if (changes['currentModalType']) {
-
     }
   }
 
@@ -145,18 +142,23 @@ export class WyLayerModalComponent implements OnInit, AfterViewInit,OnChanges {
   }
 
   private keepCenter(modal: HTMLElement, size: { w: number, h: number }) {
-      const left = (this.getWindowSize().w - size.w) / 2
-      const top = (this.getWindowSize().h - size.h) / 2
-      modal.style.left = left + 'px'
-      modal.style.top = top + 'px'
-      this.resizeHandler = this.rd2.listen('window', 'resize', () => this.keepCenter(modal, size))
+     if (this.isBrowser) {
+       const left = (this.getWindowSize().w - size.w) / 2
+       const top = (this.getWindowSize().h - size.h) / 2
+       modal.style.left = left + 'px'
+       modal.style.top = top + 'px'
+       this.resizeHandler = this.rd2.listen('window', 'resize', () => this.keepCenter(modal, size))
+     }
   }
 
   private getWindowSize() {
-    return {
-      w: this.window.innerWidth || this.doc.documentElement.clientWidth || this.doc.body.offsetWidth,
-      h: this.window.innerHeight || this.doc.documentElement.clientHeight || this.doc.body.offsetHeight
+    if (this.isBrowser) {
+      return {
+        w: window.innerWidth || this.doc.documentElement.clientWidth || this.doc.body.offsetWidth,
+        h: window.innerHeight || this.doc.documentElement.clientHeight || this.doc.body.offsetHeight
+      }
     }
+
   }
 
 }

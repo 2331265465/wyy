@@ -1,4 +1,4 @@
-import {Component, Inject} from '@angular/core';
+import {Component, Inject, PLATFORM_ID} from '@angular/core';
 import {SearchService} from "./services/search.service";
 import {SearchResult, SongSheet} from "./services/data-types/common.types";
 import {isObject} from "./utils/tools";
@@ -11,7 +11,6 @@ import {LoginParams} from "./share/wy-ui/wy-layer/wy-layer-login/wy-layer-login.
 import {LikeSongPid, MemberService, ShareParams} from "./services/member.service";
 import {User} from "./services/data-types/member.type";
 import {NzMessageService} from "ng-zorro-antd/message";
-import {WINDOW} from "./services/services.module";
 import {codeJson} from "./utils/base64";
 import {getLikeId, getModalType, getModalVisible, getShareInfo, selectMember} from "./store/selectors/member.selector";
 import {
@@ -25,7 +24,7 @@ import {
 import {filter, map, mergeMap, takeUntil} from "rxjs/operators";
 import {interval, Observable} from "rxjs";
 import {Title} from "@angular/platform-browser";
-import {DOCUMENT} from "@angular/common";
+import {isPlatformBrowser} from "@angular/common";
 
 
 @Component({
@@ -58,8 +57,10 @@ export class AppComponent {
   private navEnd: Observable<RouterEvent | RouteConfigLoadStart | RouteConfigLoadEnd | ChildActivationStart | ChildActivationEnd | ActivationStart | ActivationEnd | Scroll>;
   routeTitle = ''
   loadPercent = 0
+  private readonly isBrowser: boolean
+
   constructor(
-    @Inject(WINDOW) private win: Window,
+    @Inject(PLATFORM_ID) private platformId,
     private searchServe: SearchService,
     private batchActionsServe: BatchActionsService,
     private memberServe: MemberService,
@@ -67,20 +68,27 @@ export class AppComponent {
     private messageServe: NzMessageService,
     private router: Router,
     private route: ActivatedRoute,
-    private titleServe:Title,
+    private titleServe: Title,
   ) {
-    const userId = this.win.localStorage.getItem('wyUserId')
+    this.isBrowser = isPlatformBrowser(platformId)
+    let userId = null
+    if (this.isBrowser) {
+      userId = localStorage.getItem('wyUserId')
+    }
     if (userId) {
       this.store$.dispatch(SetUserId({id: userId}))
       this.memberServe.getUserDetail(userId).subscribe(user => this.user = user)
     }
-    const wyRememberLogin = this.win.localStorage.getItem('wyRememberLogin')
+    let wyRememberLogin = null
+    if (this.isBrowser) {
+      wyRememberLogin = localStorage.getItem('wyRememberLogin')
+    }
     if (wyRememberLogin) {
       this.wyRememberLogin = JSON.parse(wyRememberLogin)
     }
     this.listenStates()
 
-    this.router.events.pipe(filter(e => e instanceof NavigationStart)).subscribe(() =>  {
+    this.router.events.pipe(filter(e => e instanceof NavigationStart)).subscribe(() => {
       this.loadPercent = 0
       this.setTitle()
     })
@@ -91,7 +99,7 @@ export class AppComponent {
 
   private setLoadingBar() {
     interval(100).pipe(takeUntil(this.navEnd)).subscribe(() => {
-      this.loadPercent = Math.max(95,++this.loadPercent)
+      this.loadPercent = Math.max(95, ++this.loadPercent)
     })
     this.navEnd.subscribe(() => this.loadPercent = 100)
   }
@@ -225,22 +233,25 @@ export class AppComponent {
   login(params: LoginParams) {
     this.showSpin = true
     this.memberServe.login(params).subscribe(user => {
-      if (user.code !== 200) return;
+      if(user.code !== 200) {
+        this.showSpin = false
+        this.messageServe.create('error', user['msg'] || '登陆失败')
+        return
+      }
       this.user = user
       this.closeModal()
       this.alertMessage('success', '登陆成功')
       const userId = this.user.profile.userId
-      this.win.localStorage.setItem('wyUserId', userId.toString())
-      if (params.remember) {
-        this.win.localStorage.setItem('wyRememberLogin', JSON.stringify(codeJson(params)))
-      } else {
-        this.win.localStorage.removeItem('wyRememberLogin')
+      if (this.isBrowser) {
+        localStorage.setItem('wyUserId', userId.toString())
+        if (params.remember) {
+          localStorage.setItem('wyRememberLogin', JSON.stringify(codeJson(params)))
+        } else {
+          localStorage.removeItem('wyRememberLogin')
+        }
       }
       this.store$.dispatch(SetUserId({id: userId.toString()}))
       this.showSpin = false
-    }, error => {
-      this.showSpin = false
-      this.messageServe.create('error', error.message || '登陆失败')
     })
   }
 
@@ -252,7 +263,9 @@ export class AppComponent {
     this.memberServe.logout().subscribe(() => {
       this.user = null
       this.alertMessage('success', '退出成功')
-      this.win.localStorage.removeItem('wyUserId')
+      if (this.isBrowser) {
+        localStorage.removeItem('wyUserId')
+      }
       this.store$.dispatch(SetUserId({id: ''}))
     }, error => {
       this.alertMessage('error', error.message || '退出失败')
